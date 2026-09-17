@@ -35,6 +35,7 @@ const createRedemption = asyncHandler(async (req, res) => {
   const redemption = new Redemption({
     memberId: member._id,
     rewardId: reward._id,
+    rewardName: reward.name,
     pointsUsed: cost
   });
   await redemption.save();
