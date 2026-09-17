@@ -14,7 +14,15 @@ const app = express();
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
-app.use(mongoSanitize());
+
+// Express 5 makes req.query a getter, so we sanitize in-place instead of reassigning
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body, { replaceWith: '_' });
+  if (req.params) mongoSanitize.sanitize(req.params, { replaceWith: '_' });
+  if (req.query) mongoSanitize.sanitize(req.query, { replaceWith: '_' });
+  if (req.headers) mongoSanitize.sanitize(req.headers, { replaceWith: '_' });
+  next();
+});
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
