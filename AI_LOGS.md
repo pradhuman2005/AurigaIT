@@ -1,3 +1,5 @@
+# Antigravity
+
 {"step_index":0,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-09-17T09:14:37Z","content":"<USER_REQUEST>\nCAFE REWARDS — FULL-STACK BUILDER ROUND\nYOUR ROLE\nAct as a senior full-stack engineer, product engineer, QA engineer, and technical reviewer working inside the current GitHub Codespaces workspace.\nYou are building a solution for a strict 2.5-hour hands-on coding assessment.\nYour objective is NOT to merely provide code or explain a solution.\nYour objective is to:\nUnderstand the problem.\nDesign the smallest robust production-quality solution.\nImplement it completely in the current workspace.\nRun the application.\nTest the critical business logic.\nFind and fix errors.\nVerify every mandatory requirement.\nLeave the repository clean and submission-ready.\nDo not stop at planning.\nDo not ask me to manually perform routine implementation steps that you can perform yourself.\nUse the terminal, create/edit files, install dependencies, run commands, test the application, inspect errors, and fix them.\nDo not claim something works unless you actually verify it.\nASSESSMENT CONTEXT\nThe assessment requires a working full-stack product.\nMandatory requirements:\nReal database persistence\nREST APIs for core operations\nUsable UI\nUser registration and login\nSearch\nPagination\nSorting\nOne-page landing page\nPublic GitHub repository\nREADME.md\nREASONING.md\nAI_LOGS.md\nThe implementation must be completed with the 2.5-hour time constraint in mind.\nPrioritize correctness and completeness over unnecessary complexity.\nPROBLEM STATEMENT\nBuild a rewards system for a café chain.\nStoryline:\n\"A café chain’s rewards programme. Members earn points on every purchase and redeem them for free items. Regulars reach higher tiers — Silver, then Gold — that earn faster. The counter needs to record a purchase, add the right points, let a member redeem, and always show the correct live balance. Staff look a member up by phone number, and the member list is long.\nBuild the counter something so every member’s points balance is always exactly right.\nBuild it for any café and any member. Get earning, the tiers and redemption right first, then the lookups.\"\nPRODUCT VISION\nBuild:\nCafeRewards\nTagline:\n\"Every purchase. Every point. Always accurate.\"\nThis should feel like a real café counter loyalty product rather than a generic CRUD assignment.\nThe primary workflow must be extremely clear:\nLOGIN\n→ SEARCH MEMBER\n→ VIEW BALANCE\n→ RECORD PURCHASE\n→ AUTOMATICALLY EARN POINTS\n→ BALANCE UPDATES\n→ REDEEM REWARD\n→ BALANCE UPDATES\n→ VIEW HISTORY\nThe evaluator should be able to understand the product within seconds.\nPRODUCT PRINCIPLES\nFollow these principles throughout the implementation:\nCorrectness before decoration.\nBackend is the source of truth.\nNever trust client-calculated points.\nNever allow negative balances.\nEvery point movement should be explainable through transaction history.\nTier is based on lifetime earned points, not current balance.\nSearch should happen server-side.\nPagination should happen server-side.\nSorting should happen server-side.\nUI should always reflect confirmed backend state.\nUse sensible validation and error handling.\nKeep architecture simple enough to finish within the assessment.\nDo not build features that are not needed until mandatory requirements are complete.\nRECOMMENDED STACK\nUse:\nFrontend:\nReact\nVite\nJavaScript or TypeScript\nTailwind CSS\nBackend:\nNode.js\nExpress.js\nDatabase:\nMongoDB\nAuthentication:\nJWT\nbcrypt/bcryptjs\nHTTP:\nfetch or Axios\nTesting:\nVitest/Jest for business logic and API tests where practical\nChoose the implementation that is fastest and most reliable in the current Codespaces environment.\nDo not introduce unnecessary technologies.\nAvoid:\nmicroservices\nGraphQL\nKubernetes\nRedis\ncomplex state-management libraries\nunnecessary Docker configuration\nunnecessary third-party APIs\nBUSINESS RULES\nThe storyline intentionally leaves exact numbers unspecified.\nUse the following explicit, deterministic assumptions and document them in README.md.\nTIERS\nBronze\nLifetime points:\n0–499\nMultiplier:\n1.0x\nSilver\nLifetime points:\n500–999\nMultiplier:\n1.25x\nGold\nLifetime points:\n1000+\nMultiplier:\n1.5x\nBASE EARNING RATE\nBase rate:\n1 point per ₹10 spent.\nFormula:\npointsEarned = floor((purchaseAmount / 10) × tierMultiplier)\nExamples:\nBronze:\n₹500 → 50 points\nSilver:\n₹500 → 62 points\nGold:\n₹500 → 75 points\nPoints must always be integers.\nNever store fractional points.\nCRITICAL TIER RULE\nTier is based on:\nlifetimePoints\nNOT:\ncurrentPoints\nExample:\nA member has:\nLifetime points = 1200\nCurrent balance = 300\nThe member is still:\nGold\nRedeeming points must NEVER reduce lifetimePoints.\nREWARD CATALOG\nCreate these default rewards:\nCoffee:\n100 points\nCold Coffee:\n150 points\nSandwich:\n200 points\nCake:\n300 points\nRewards should be persisted in the database.\nEach reward should have:\nname\ndescription\npointsCost\nactive\ncreatedAt\nupdatedAt\nOnly active rewards should normally be shown for redemption.\nCORE DATA MODEL\nUse the following conceptual models.\nUser\nFields:\nid\nname\nemail\npasswordHash\nrole\ncreatedAt\nupdatedAt\nDefault role:\nstaff\nMember\nFields:\nid\nname\nphone\nemail\ncurrentPoints\nlifetimePoints\ntier\ncreatedAt\nupdatedAt\nConstraints:\nphone must be unique\ncurrentPoints >= 0\nlifetimePoints >= 0\ntier must be Bronze/Silver/Gold\nCreate an index on phone.\nPurchase\nFields:\nid\nmemberId\namount\npointsEarned\ntierAtPurchase\ncreatedAt\nRedemption\nFields:\nid\nmemberId\nrewardId\nrewardName\npointsUsed\ncreatedAt\nStore rewardName as a snapshot for historical readability.\nPoint Transaction / Ledger\nWhere practical, create a transaction ledger.\nFields:\nid\nmemberId\ntype: EARN or REDEEM\npoints\nreferenceType\nreferenceId\nbalanceAfter\ncreatedAt\nThis ledger is important because every points change should be auditable.\nFor an EARN transaction:\npoints is positive.\nFor a REDEEM transaction:\npoints is negative.\nThe ledger should make it possible to understand why a member currently has a particular balance.\nDo not duplicate unnecessary data merely for the sake of complexity.\nBALANCE INTEGRITY\nThis is the most important technical requirement.\nThe application must ensure:\ncurrentPoints >= 0\nThe frontend must NEVER be the authority for:\ncurrentPoints\nlifetimePoints\ntier\npointsEarned\npointsUsed\nThe backend must calculate and validate all of them.\nPURCHASE FLOW\nWhen a purchase is submitted:\nPOST /api/purchases\nRequest should contain only necessary information, for example:\nmemberId\namount\nDo NOT accept pointsEarned from the frontend as authoritative.\nBackend process:\nAuthenticate staff.\nValidate member.\nValidate purchase amount.\nRead member's current tier.\nCalculate points using the official business rule.\nIncrease currentPoints.\nIncrease lifetimePoints.\nRecalculate tier.\nCreate Purchase record.\nCreate EARN ledger transaction.\nReturn the updated member and transaction information.\nExample:\nSilver member:\nCurrent:\n650\nLifetime:\n850\nPurchase:\n₹800\nMultiplier:\n1.25x\nPoints:\nfloor(800 / 10 × 1.25)\n= 100\nAfter:\nCurrent:\n750\nLifetime:\n950\nTier:\nSilver\nTIER UPGRADE\nHandle boundary conditions correctly.\nExamples:\nLifetime 499:\nBronze\nLifetime 500:\nSilver\nLifetime 999:\nSilver\nLifetime 1000:\nGold\nIf a purchase causes a member to cross a tier threshold, the member must be upgraded immediately.\nExample:\nLifetime:\n950\nPurchase earns:\n100\nNew lifetime:\n1050\nNew tier:\nGold\nThe purchase itself was earned using the member's tier BEFORE the purchase.\nAfter the purchase, the tier changes for future purchases.\nThis distinction must be preserved.\nREDEMPTION FLOW\nPOST /api/redemptions\nRequest should contain:\nmemberId\nrewardId\nDo NOT accept the points cost from the frontend as authoritative.\nBackend must retrieve the actual reward cost.\nBackend process:\nAuthenticate staff.\nValidate member.\nValidate reward.\nEnsure reward is active.\nRead reward points cost.\nAtomically verify sufficient balance.\nDeduct points.\nCreate Redemption record.\nCreate REDEEM ledger transaction.\nReturn updated member.\nUI immediately displays returned balance.\nCONCURRENCY / DOUBLE-REDEMPTION PROTECTION\nProtect against this situation:\nBalance = 100\nTwo redemption requests attempt to redeem 100 points at almost the same time.\nThe application must NOT allow:\n100 → 0\nand\n100 → -100\nUse an atomic database update or MongoDB transaction where appropriate.\nConceptually:\nUpdate the member only if:\ncurrentPoints >= rewardCost\nIf the atomic operation affects zero records:\nreturn an insufficient-balance response.\nNever allow a negative balance.\nIf MongoDB transaction support is practical in the current environment, use transactions for multi-document consistency.\nIf not, use atomic member balance updates and carefully ordered transaction creation, and document the approach.\nIDEMPOTENCY / DUPLICATE SUBMISSION\nWhere practical, protect purchase/redemption operations against accidental duplicate submissions.\nAt minimum:\ndisable submit button while request is processing\nprevent double-click duplicate requests in UI\nuse a transaction/reference identifier where practical\nDo not over-engineer this if it threatens the assessment timeline.\nMEMBER SEARCH\nThe counter's primary lookup method is phone number.\nCreate a highly visible search field:\n\"Search member by phone number\"\nSearch should query the backend.\nDo not download all members into the browser and search locally.\nSupport partial phone matching if practical.\nExample:\nGET /api/members/search?phone=9876543210\nReturn useful member information:\nname\nphone\ntier\ncurrentPoints\nlifetimePoints\nPhone should be indexed.\nMEMBER LIST\nCreate a Members page.\nDisplay:\nname\nphone\ntier\ncurrent points\nlifetime points\njoined date\naction\nThe member list must support server-side pagination.\nExample:\nGET /api/members?page=1&limit=10\nResponse should include pagination metadata:\ncurrentPage\ntotalPages\ntotalItems\nlimit\nSORTING\nImplement server-side sorting.\nAt minimum:\nname ascending\nname descending\ncurrent points ascending\ncurrent points descending\nlifetime points ascending\nlifetime points descending\nnewest\noldest\nExample:\nGET /api/members?page=1&limit=10&sort=name&order=asc\nDo not perform sorting only in the frontend.\nMEMBER DETAIL\nCreate a member detail page or panel.\nDisplay prominently:\nMember name\nPhone\nCurrent balance\nLifetime points\nTier\nEarning multiplier\nProgress to next tier\nRecent transactions\nActions:\nRecord Purchase\nRedeem Reward\nBALANCE CARD\nThe balance should be visually dominant.\nExample:\nCURRENT BALANCE\n650\nPOINTS\nSilver · 1.25× earning\nAlso show:\nLifetime earned:\n850\nProgress to Gold:\n150 points\nDo not confuse current balance with lifetime earned points.\nPURCHASE UI\nCreate a clean purchase modal/page.\nFields:\nMember\nPurchase amount\nDisplay a live preview:\nCurrent tier:\nSilver\nEstimated points:\n100\nImportant:\nThis is only a preview.\nThe backend calculates the authoritative value.\nOn success:\nShow:\nPurchase recorded\n+100 points\nNew balance:\n750 points\nREDEMPTION UI\nShow reward cards:\nCoffee\n100 pts\nCold Coffee\n150 pts\nSandwich\n200 pts\nCake\n300 pts\nFor each reward:\nshow whether member can afford it\ndisable unaffordable rewards\nshow remaining balance after redemption where useful\nBut frontend affordability is only a UX feature.\nBackend MUST validate again.\nAfter success:\nShow:\nReward redeemed\n-100 points\nNew balance:\n550 points\nTRANSACTION HISTORY\nDisplay recent transactions.\nUse clear labels:\nEARNED\n+100\nREDEEMED\n-100\nFor purchases show:\ndate\npurchase amount\npoints earned\ntier at purchase\nFor redemptions show:\ndate\nreward\npoints used\nNewest first.\nDASHBOARD\nCreate a practical counter dashboard.\nInclude:\ntotal members\ntotal purchases\ntotal redemptions\ntotal points issued\nquick member search\nrecent activity\nDo not spend excessive time on charts.\nThe dashboard should help counter staff immediately perform the main workflow.\nAUTHENTICATION\nImplement:\nPOST /api/auth/register\nPOST /api/auth/login\nUse:\nbcrypt/bcryptjs\nJWT\nprotected API routes\nPasswords must never be stored in plaintext.\nDo not return passwordHash from API responses.\nHandle:\nduplicate email\ninvalid credentials\nmissing fields\nunauthorized requests\nAPI DESIGN\nImplement clean REST APIs.\nMinimum API set:\nAUTH\nPOST /api/auth/register\nPOST /api/auth/login\nMEMBERS\nPOST /api/members\nGET /api/members\nGET /api/members/:id\nGET /api/members/search?phone=...\nPURCHASES\nPOST /api/purchases\nGET /api/members/:id/purchases\nREWARDS\nGET /api/rewards\nREDEMPTIONS\nPOST /api/redemptions\nGET /api/members/:id/redemptions\nTRANSACTIONS\nGET /api/members/:id/transactions\nYou may improve endpoint naming if necessary, but maintain RESTful design.\nEvery core operation must be exposed through a REST API.\nHTTP STATUS CODES\nUse sensible status codes.\nExamples:\n200:\nsuccessful read/update\n201:\nsuccessful creation\n400:\ninvalid input\n401:\nunauthorized\n404:\nresource not found\n409:\nduplicate/conflict/insufficient balance where appropriate\n500:\nunexpected server error\nDo not return 200 for every possible failure.\nVALIDATION\nBackend validation is mandatory.\nMember:\nname required\nphone required\nphone unique\nPurchase:\namount required\namount > 0\nreasonable decimal precision\nRedemption:\nmember exists\nreward exists\nreward active\nsufficient balance\nRegistration:\nvalid email\nvalid password\nrequired name\nNever rely only on frontend validation.\nERROR UX\nErrors should be understandable.\nExamples:\n\"Member not found.\"\n\"Purchase amount must be greater than ₹0.\"\n\"Insufficient points for this reward.\"\n\"That phone number is already registered.\"\n\"Invalid email or password.\"\nAvoid exposing stack traces to users.\nUI DESIGN\nBuild a polished, modern SaaS-style café interface.\nDesign direction:\nwarm café-inspired visual identity\nclean light background\ndark readable typography\nsubtle coffee/brown accents\nrestrained use of gold/silver/bronze for tiers\nrounded cards\nclean tables\nclear CTAs\nresponsive layout\nprofessional spacing\nAvoid:\nexcessive gradients\nexcessive animations\nclutter\ngiant decorative elements\ntemplate-looking UI\nunnecessary pages\nThe application should feel intentional and production-oriented.\nRESPONSIVENESS\nDesktop is the primary target because this is a counter application.\nStill make the application usable on smaller screens.\nTables should not break the layout.\nModals should remain usable.\nButtons should be clearly accessible.\nLANDING PAGE\nCreate a one-page landing page at /.\nIt must contain:\nHero\nCafeRewards\nEvery purchase. Every point. Always accurate.\nDescription:\n\"A simple loyalty platform that helps cafés manage members, purchases, rewards and points in real time.\"\nCTA:\nStaff Login\nProblem\nManual loyalty tracking can cause:\nincorrect point calculations\nslow member lookup\nredemption mistakes\nunclear balances\nSolution\nCafeRewards provides:\nautomatic tier-based earning\nreal-time balances\nphone lookup\nreward redemption\ntransaction history\nKey Features\nAccurate Points\nTier-Based Rewards\nFast Phone Lookup\nReward Redemption\nSearch\nPagination\nSorting\nTransaction History\nTarget Audience\ncafé owners\ncafé managers\ncounter staff\nHow It Helps\nExplain how the system reduces manual calculations and makes the counter workflow faster and more reliable.\nThree Future Features\nMember mobile app\nAutomated WhatsApp/SMS reward notifications\nLoyalty analytics and reporting\nDEMO DATA\nCreate a seed script.\nSeed:\nat least 15–20 members\nBronze members\nSilver members\nGold members\npurchase history\nredemption history\nrewards\ndemo staff user\nUse realistic but clearly fictional data.\nInclude at least one member close to each tier boundary.\nFor example:\n499 lifetime points\n500 lifetime points\n999 lifetime points\n1000 lifetime points\nThis allows the evaluator to easily test boundary behavior.\nCreate demo credentials and document them in README.md.\nExample:\nEmail:\n[demo@caferewards.local](mailto:demo@caferewards.local)\nPassword:\nDemo@12345\nIf credentials are created, ensure the password is only for local/demo use.\nTESTING REQUIREMENTS\nTesting business logic is extremely important.\nCreate automated tests where practical.\nAt minimum test:\nTier\n0 → Bronze\n499 → Bronze\n500 → Silver\n999 → Silver\n1000 → Gold\nEarning\nBronze + ₹500 → 50\nSilver + ₹500 → 62\nGold + ₹500 → 75\nTier transition\nLifetime 950 + 100 earned:\nNew lifetime = 1050\nNew tier = Gold\nThe 100 points must be earned using the member's tier before the purchase.\nRedemption\n650 current points - 100:\n550\nInsufficient balance\n50 - 100:\nmust fail\nbalance remains 50\nLifetime points\nLifetime points must remain unchanged after redemption.\nNegative balance\nImpossible.\nPhone uniqueness\nDuplicate phone must be rejected.\nAuthentication\nInvalid credentials must fail.\nProtected routes must reject unauthenticated requests.\nMANUAL QA FLOW\nActually test the application from the UI.\nPerform this sequence:\nOpen landing page.\nGo to login.\nLogin with demo account.\nSearch for a member by phone.\nOpen member.\nVerify balance.\nRecord a purchase.\nVerify points earned.\nVerify current balance.\nVerify lifetime points.\nVerify tier.\nRedeem an affordable reward.\nVerify balance again.\nAttempt an unaffordable reward.\nVerify it is rejected.\nOpen transaction history.\nOpen Members.\nVerify pagination.\nVerify sorting.\nVerify search.\nFix every issue discovered.\nDATABASE INDEXING\nAdd appropriate indexes.\nAt minimum:\nMember.phone unique index.\nAdd other indexes if useful for:\nmemberId\ncreatedAt\ntransaction history\nDo not create unnecessary indexes.\nENVIRONMENT CONFIGURATION\nCreate .env.example.\nExample:\nMONGODB_URI=\nJWT_SECRET=\nPORT=5000\nFrontend environment variables if needed should also be documented.\nEnsure:\n.env\nis included in .gitignore.\nNever commit real secrets.\nPROJECT STRUCTURE\nUse a clean structure similar to:\ncafe-rewards/\n│\n├── frontend/\n│ ├── src/\n│ │ ├── components/\n│ │ ├── pages/\n│ │ ├── services/\n│ │ ├── hooks/\n│ │ ├── utils/\n│ │ ├── App.jsx\n│ │ └── main.jsx\n│ └── package.json\n│\n├── backend/\n│ ├── src/\n│ │ ├── controllers/\n│ │ ├── models/\n│ │ ├── routes/\n│ │ ├── middleware/\n│ │ ├── services/\n│ │ ├── utils/\n│ │ └── server.js\n│ └── package.json\n│\n├── README.md\n├── REASONING.md\n├── AI_LOGS.md\n├── .env.example\n├── .gitignore\n└── package.json\nYou may improve the structure if necessary.\nCENTRALIZE BUSINESS LOGIC\nCreate reusable backend functions/services such as:\ncalculateTier(lifetimePoints)\ngetTierMultiplier(tier)\ncalculatePoints(purchaseAmount, tier)\nvalidateRedemption(currentPoints, rewardCost)\nDo NOT duplicate business logic across controllers.\nThe same business rules should have one authoritative implementation.\nAPI RESPONSE DESIGN\nReturn useful consistent responses.\nExample successful purchase:\n{\n\"success\": true,\n\"message\": \"Purchase recorded successfully\",\n\"data\": {\n\"member\": {\n\"id\": \"...\",\n\"name\": \"...\",\n\"currentPoints\": 750,\n\"lifetimePoints\": 950,\n\"tier\": \"Silver\"\n},\n\"purchase\": {\n\"amount\": 800,\n\"pointsEarned\": 100\n}\n}\n}\nUse a similarly understandable structure for redemption.\nSECURITY BASICS\nImplement:\npassword hashing\nJWT authentication\ninput validation\nprotected APIs\nenvironment variables\nno secret commits\nno password hash responses\nsafe error responses\nIf practical, add:\nHelmet\nCORS configuration\nrate limiting on authentication endpoints\nDo not sacrifice core assessment functionality for optional security libraries.\nREADME.md\nCreate a high-quality evaluator-friendly README.\nSections:\nCafeRewards\nProduct Overview\nProblem Statement\nFeatures\nBusiness Rules\nClearly document:\nBronze\nSilver\nGold\nmultipliers\nearning formula\nreward costs\ncurrent points\nlifetime points\nredemption behavior\nArchitecture\nInclude a simple text diagram:\nFrontend\n↓\nREST API\n↓\nBusiness Logic\n↓\nMongoDB\nTech Stack\nProject Structure\nPrerequisites\nEnvironment Variables\nInstallation\nRunning in GitHub Codespaces\nDatabase Setup\nSeed Data\nDemo Credentials\nUser Flow\nAPI Documentation\nFor every endpoint include:\nmethod\nendpoint\nauthentication\nrequest\nresponse\npurpose\nPoints Calculation Examples\nTesting\nData Integrity\nExplain how the system prevents incorrect balances and negative balances.\nKnown Limitations\nFuture Improvements\nThe README must be written for an evaluator who has just cloned the repository.\nREASONING.md\nCreate an engineering decision document.\nIMPORTANT:\nDo NOT include hidden chain-of-thought.\nOnly include concise, externally explainable engineering decisions.\nSections:\nProblem Understanding\nRequirements\nAssumptions\nExplain why the explicit tier/reward values were selected.\nArchitecture Decisions\nDatabase Design\nPoints Calculation\nTier Logic\nRedemption Integrity\nSearch\nPagination and Sorting\nAuthentication\nTesting Strategy\nIssues Encountered and Fixes\nOnly document issues that actually occurred.\nTradeoffs\nExplain deliberate simplifications made because of the 2.5-hour constraint.\nAI_LOGS.md\nThe assessment specifically requires:\n\"The complete conversation with the AI tool, pasted as-is. It must not be modified in any way.\"\nDo NOT fabricate an AI conversation.\nDo NOT invent prompts or responses.\nDo NOT alter an exported conversation.\nIf the current AI environment provides a legitimate conversation export/log, preserve it exactly as required.\nIf the environment does not provide the actual complete conversation log, do not pretend that a generated summary is the original AI log.\nTIME MANAGEMENT\nTreat the assessment as a 150-minute build.\nUse this internal priority:\nPhase 1 — Foundation\nDatabase\nModels\nBusiness logic\nAuthentication\nCore APIs\nPhase 2 — Core workflow\nMember lookup\nPurchase\nPoints\nTier\nRedemption\nBalance\nTransactions\nPhase 3 — Mandatory usability\nSearch\nPagination\nSorting\nLanding page\nPhase 4 — Quality\nValidation\nError handling\nTests\nSeed data\nREADME\nREASONING\nPhase 5 — Final verification\nBuild\nRun\nManual QA\nFix errors\nGit status\nFinal cleanup\nDo not spend excessive time on visual polish while core business logic is incomplete.\nFAILURE PREVENTION\nBefore considering the project complete, actively look for these mistakes:\nfrontend calculates authoritative points\nfrontend modifies balance without backend confirmation\nredemption can produce negative points\nlifetime points decrease after redemption\ntier is based on current balance\ntier changes before calculating the purchase multiplier\nduplicate phone numbers are allowed\nsearch is client-only\npagination is client-only\nsorting is client-only\nunauthenticated APIs are accessible\npasswords are stored plaintext\nreward cost comes from frontend\npointsEarned comes from frontend\ntransaction history does not match balance\npurchase updates balance but does not create history\nredemption updates balance but does not create history\nfailed redemption changes balance\nfailed purchase partially changes state\nenvironment secrets are committed\napplication does not build\nREADME instructions are incorrect\nFix these before finalizing.\nEVALUATOR EXPERIENCE\nOptimize the demo path.\nAn evaluator should be able to:\nOpen the application.\nLogin with documented demo credentials.\nSearch a member.\nImmediately see the member's balance/tier.\nRecord a purchase.\nSee points automatically calculated.\nSee balance update.\nRedeem a reward.\nSee balance decrease correctly.\nView transaction history.\nSearch/paginate/sort members.\nThe main workflow should require as few clicks as reasonably possible.\nFINAL ACCEPTANCE CHECKLIST\nDo not declare the project complete until you have verified:\nApplication\n[ ] Frontend starts\n[ ] Backend starts\n[ ] Database connects\n[ ] Production build succeeds\n[ ] No major console errors\nAuthentication\n[ ] Register works\n[ ] Login works\n[ ] Password hashing works\n[ ] JWT protection works\n[ ] Invalid login fails\nMembers\n[ ] Create member works\n[ ] Phone number is unique\n[ ] Search by phone works\n[ ] Member detail works\n[ ] Member list works\n[ ] Pagination works\n[ ] Sorting works\nPoints\n[ ] Bronze calculation works\n[ ] Silver calculation works\n[ ] Gold calculation works\n[ ] Points are integers\n[ ] Lifetime points increase after purchase\n[ ] Current points increase after purchase\n[ ] Tier upgrades correctly\n[ ] Purchase uses tier BEFORE purchase\nRedemption\n[ ] Reward catalog works\n[ ] Affordable redemption works\n[ ] Insufficient redemption fails\n[ ] Negative balance impossible\n[ ] Current points decrease correctly\n[ ] Lifetime points do not decrease\n[ ] Tier does not incorrectly downgrade\n[ ] Redemption history exists\nTransactions\n[ ] Purchase history exists\n[ ] Redemption history exists\n[ ] Ledger is consistent where implemented\n[ ] Balance can be explained from transactions\nUI\n[ ] Landing page exists\n[ ] Dashboard exists\n[ ] Search is prominent\n[ ] Balance is prominent\n[ ] Purchase flow works\n[ ] Redemption flow works\n[ ] Error messages are clear\n[ ] Responsive enough for desktop/mobile\nDocumentation\n[ ] README.md complete\n[ ] REASONING.md complete\n[ ] AI_LOGS.md handled according to actual AI log requirement\n[ ] API endpoints documented\n[ ] Business assumptions documented\n[ ] Setup instructions verified\n[ ] Demo credentials documented\n[ ] .env.example exists\n[ ] .env ignored\nRepository\n[ ] No secrets committed\n[ ] No unnecessary files\n[ ] No broken imports\n[ ] No dead routes\n[ ] No obvious debug code\n[ ] Git status reviewed\nFINAL EXECUTION COMMAND\nStart NOW.\nFirst inspect the current workspace.\nThen implement the project.\nDo not only produce a plan.\nDo not wait for confirmation between normal implementation steps.\nUse the available terminal and filesystem.\nInstall dependencies.\nCreate/edit files.\nRun the application.\nRun tests.\nPerform manual QA.\nFix errors.\nRe-run tests after fixes.\nVerify the acceptance checklist.\nFinally provide a concise summary of:\nWhat was built.\nHow to run it.\nDemo credentials.\nTests performed.\nAny genuine remaining limitations.\nDo not claim success without verification. Before making any implementation decision, inspect the current workspace and available runtime.\r\n\r\nThen execute the complete build autonomously.\r\n\r\nDo not stop after scaffolding.\r\n\r\nDo not leave TODOs for mandatory requirements.\r\n\r\nDo not generate fake test results.\r\n\r\nFor every critical feature, actually run and verify it.\r\n\r\nIf something fails, debug it yourself and fix it.\r\n\r\nFor the points system, prioritize data integrity above UI polish.\r\n\r\nFor purchase and redemption, the backend must be the source of truth.\r\n\r\nAt the end, perform a complete evaluator-style smoke test from login → member search → purchase → balance update → redemption → transaction history → pagination → sorting.\r\n\r\nOnly after that should you consider the project complete.\r\n\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-09-17T14:44:37+05:30.\n</ADDITIONAL_METADATA>\n<USER_SETTINGS_CHANGE>\nThe user changed setting `Model Selection` from None to Gemini 3.1 Pro (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.\n</USER_SETTINGS_CHANGE>"}
 {"step_index":1,"source":"SYSTEM","type":"CHECKPOINT","status":"DONE","created_at":"2026-09-17T09:14:37Z","content":"{{ CHECKPOINT 0 }}\n **The earlier parts of this conversation have been truncated due to its long length. The following content summarizes the truncated context so that you may continue your work. **\n\n\n# USER Objective:\nCafe Rewards Full-Stack Build\n\n# User Requests\nThe following were user requests from the truncated conversation in chronological order:\n1. CAFE REWARDS — FULL-STACK BUILDER ROUND\nYOUR ROLE\nAct as a senior full-stack engineer, product engineer, QA engineer, and technical reviewer working inside the current GitHub Codespaces workspace.\nYou are building a solution for a strict 2.5-hour hands-on coding assessment.\nYour objective is NOT to merely provide code or explain a solution.\nYour objective is to:\nUnderstand the problem.\nDesign the smallest robust production-quality solution.\nImplement it completely in the current workspace.\nRun the application.\nTest the critical business logic.\nFind and fix errors.\nVerify every mandatory requirement.\nLeave the repository clean and submission-ready.\nDo not stop at planning.\nDo not ask me to manually perform routine implementation steps that you can perform yourself.\nUse the terminal, create/edit files, install dependencies, run commands, test the application, inspect errors, and fix them.\nDo not claim something works unless you actually verify it.\nASSESSMENT CONTEXT\nThe assessment requires a working full-s\n<truncated 25471 bytes>\n\n# Conversation Logs\n\nReference the following log files for the full, untruncated conversation:\n\n- C:\\Users\\hp\\.gemini\\antigravity\\brain\\a1e4a8ea-6635-4177-9203-f356777e7560\\.system_generated\\logs\\transcript.jsonl\n\n**IMPORTANT: this summary is just for your reference. You may respond to my previous and future messages, but DO NOT ACKNOWLEDGE THIS CHECKPOINT MESSAGE. JUST READ IT BUT DO NOT MENTION IT, RESPOND TO IT, OR TAKE ACTION BECAUSE OF IT.**"}
 {"step_index":2,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-17T09:14:45Z","thinking":"**Begin Building Rewards App**\n\nI'm starting to build a full-stack Cafe Rewards application in the specified workspace using available tools. The initial focus is on scaffolding both the frontend and backend using `run_command`. This should lay the groundwork for subsequent development steps.\n\n\n**Initiate Workspace Setup**\n\nI've shifted focus to setting up the workspace. Realized I need to account for the Windows OS, so I'm creating the `cafe-rewards` directory in the default scratch location. Now, I'm setting up the `backend` and `frontend` folders within it, and getting ready to initialize the `package.json` for the backend project.\n\n\n**Define Backend Dependencies**\n\nI'm now outlining the backend dependencies, including `express`, `mongoose`, `cors`, and more. I plan to install these and dev dependencies like `nodemon` and `jest`. The core will be the server setup with a MongoDB connection, alongside model definitions, controllers, routes, and authentication middleware. Then, I will address points, tiers, and redemptions.\n\n\n","tool_calls":[{"name":"run_command","args":{"CommandLine":"mkdir -p C:\\Users\\hp\\.gemini\\antigravity\\scratch\\cafe-rewards\\backend; mkdir -p C:\\Users\\hp\\.gemini\\antigravity\\scratch\\cafe-rewards\\frontend","Cwd":"C:\\Users\\hp\\.gemini\\antigravity\\scratch","WaitMsBeforeAsync":5000,"toolAction":"Running command","toolSummary":"Create project directories"}}]}
@@ -173,3 +175,250 @@
 {"step_index":172,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-17T09:46:41Z","tool_calls":[{"name":"write_to_file","args":{"CodeContent":"const mongoose = require('mongoose');\nconst { MongoMemoryServer } = require('mongodb-memory-server');\n\nlet mongoServer;\n\nconst connectDB = async () => {\n  try {\n    let mongoUri = process.env.MONGODB_URI;\n\n    if (mongoUri) {\n      await mongoose.connect(mongoUri);\n      console.log(`MongoDB Connected (Persistent): ${mongoose.connection.host}`);\n    } else {\n      console.log('No MONGODB_URI found. Falling back to in-memory MongoDB...');\n      mongoServer = await MongoMemoryServer.create();\n      mongoUri = mongoServer.getUri();\n      await mongoose.connect(mongoUri);\n      console.log(`MongoDB Connected (Memory Server): ${mongoUri}`);\n    }\n    \n    // Auto-seed if specified in env\n    if (process.env.SEED_ON_START === 'true') {\n      console.log('Seeding database as requested by SEED_ON_START...');\n      await require('../utils/seedFunction')();\n    }\n    \n  } catch (error) {\n    console.error(`Error: ${error.message}`);\n    process.exit(1);\n  }\n};\n\nmodule.exports = connectDB;","Description":"Add DB fallback logic","Overwrite":true,"TargetFile":"C:\\Users\\hp\\.gemini\\antigravity\\scratch\\cafe-rewards\\backend\\src\\config\\db.js","toolAction":"Writing db.js","toolSummary":"Update DB config with fallback"}}]}
 {"step_index":173,"source":"MODEL","type":"GENERIC","status":"DONE","created_at":"2026-09-17T09:46:47Z","content":"Created At: 2026-09-17T15:16:47+05:30\nCompleted At: 2026-09-17T15:16:48+05:30\nCreated file file:///C:/Users/hp/.gemini/antigravity/scratch/cafe-rewards/backend/src/config/db.js with requested content.\nIf relevant, proactively run terminal commands to execute this code for the USER. Don't ask for permission."}
 {"step_index":174,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-17T09:46:48Z","tool_calls":[{"name":"run_command","args":{"CommandLine":"copy C:\\Users\\hp\\.gemini\\antigravity\\brain\\a1e4a8ea-6635-4177-9203-f356777e7560\\.system_generated\\logs\\transcript_full.jsonl AI_LOGS.md","Cwd":"C:\\Users\\hp\\.gemini\\antigravity\\scratch\\cafe-rewards","WaitMsBeforeAsync":5000,"toolAction":"Running command","toolSummary":"Copy transcript to AI_LOGS.md"}}]}
+
+# Chatgpt
+
+iframe[iframe](https://chat.google.com/u/0/mole/world?wfi=gtn-brain-iframe-id\&hs=%5B%22h_hs%22%2Cnull%2Cnull%2C%5B2%2C0%2C%22basicwhite%22%5D%2Cnull%2Cnull%2C%22gmail.pinto-server_20260914.18_p0%22%2Cnull%2Cnull%2C%5B6%2C58%2C17%2C20%2C21%2C19%2C31%2C88%5D%2Cnull%2Cnull%2C%229rY_HPsLYSA.en.L.es5%22%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C0%5D\&hl=en\&ilt=-4911416567307260735\&dip=3\&shell=6\&has_stream_view=false\&origin=https%3A%2F%2Fmail.google.com\&oi=1#hot=1789635749297)
+
+[Skip to content](https://mail.google.com/mail/u/0/)
+[Using Swami Keshvanand Institute of Technology Mail with screen readers](https://mail.google.com/mail/u/0/)
+
+#
+
+|   |
+| - |
+
+|   |
+| - |
+
+[Chat](https://chat.google.com/u/0/frame?shell=6\&pt=6\&origin=https%3A%2F%2Fmail.google.com\&oi=1\&dip=3#cb=gtn-brain-iframe-id\&id=world\&pt=6)
+
+1 of 1,846
+
+## **Fwd: Auriga IT | Campus Recruitment Drive � 2027 Batch | SDE I | SKIT**
+
+**Inbox**
+
+[image](https://lh3.googleusercontent.com/a/default-user=s40-p)
+
+|    |
+| :- |
+
+|   |
+| - |
+
+### T & P Cell (SKIT) \<tpo\@skit.ac.in>
+
+###
+
+| 2:28?PM (6 minutes ago) |    |    |
+| ----------------------: | -: | -: |
+|                         |    |    |
+
+| to bcc: me | [image](https://mail.google.com/mail/u/0/images/cleardot.gif) |
+| ---------- | ------------------------------------------------------------- |
+
+Hi Vineet
+
+Thank you for your continued support with our campus recruitment drive. Below is the complete process for Round 2, along with the problem assignment sheet and the submission form. We request you to share this with the shortlisted candidates ahead of the round.
+
+Round 2 � "Builder" Round (overview)
+
+Round 2 is a hands-on, timed build round that assesses how a candidate approaches an open-ended, real-world problem end to end.
+
+\- Duration: 2.5 hours. This is a strict limit � submissions after the window closes will not be accepted.
+\- The problem: Each candidate receives a short, real-world problem brief (a storyline plus one twist). Beyond the brief and the required deliverables below, no further specification is given � candidates are expected to work out the features and design themselves.
+\- AI tools: Candidates may freely use any AI assistant or tool (for example, GitHub Copilot) to interpret the problem and build their solution.
+\- Tech stack: Candidates may use any language and framework they are comfortable with.
+\- Environment: All coding is done online in GitHub Codespaces, accessed with the candidate's college email ID.
+
+Problem assignment
+
+Each candidate's assigned problem is listed, student-wise, in the sheet below � please ensure every candidate works on their own allotted problem:
+https://docs.google.com/spreadsheets/d/1KnpL2zTgyh6FxIPt7hLjsSU1TG_xdOVF/edit?usp=sharing&ouid=113305145576875992418&rtpof=true&sd=true
+
+What every solution must include (mandatory)
+
+Each submission is expected to be a working full-stack product. Every solution must include:
+\- A database (real persistence with a sensible schema).
+\- REST APIs for the core operations � and the candidate must list these endpoints in the README.
+\- A usable UI over those APIs.
+\- User registration and login.
+\- Search.
+\- A one-page landing page for the product (what it is, key features, target audience, how it helps, and three features they would build next).
+\- Pagination and sorting
+
+Submission
+
+The final solution must be a public GitHub repository, with the following three files in the root folder (used for evaluation):
+\- README.md � how to set up, run and debug the project, plus the list of API endpoints.
+\- REASONING.md � the thought process behind the solution, including how they tested and fixed issues.
+\- AI\_LOGS.md � the complete conversation with the AI tool, pasted as-is. It must not be modified in any way; any alteration will lead to a deduction of marks.
+
+Candidates submit the public GitHub repository URL through this form:
+[https://forms.gle/AXK2WcMVNE8cU3SWA](https://forms.gle/AXK2WcMVNE8cU3SWA)
+
+Please note again that the 2.5-hour limit is strict � any submission received after the window closes will not be entertained.
+
+We would be grateful if you could circulate this to the participating students. Please feel free to reach out for any clarification.
+
+Warm regards
+
+|   |
+| - |
+
+[image](https://ci3.googleusercontent.com/mail-sig/AIorK4zvef9gXpi0oYc8RfprrhNKAj6Y2vBDi6klJhViwKbkglbv1IQCrSkgD1B0uiu9KjPV5pn6M3k) 
+
+|   |
+| - |
+
+**Pooja Nankani**
+
+**Lead - People & Culture**
+**[www.aurigait.com](http://www.aurigait.com/)**
+
+**Address  **First Floor, G1, QRPR+7F8, Export Promotion Industrial Park, [227/228, IT Park Rd, Sitapura Industrial Area, Sitapura, Jaipur, Rajasthan 302022](https://www.google.com/maps/search/227%2F228,+IT+Park+Rd,+Sitapura+Industrial+Area,+Sitapura,+Jaipur,+Rajasthan+302022?entry=gmail\&source=g)
+
+[image](https://ci3.googleusercontent.com/meips/ADKq_NaWCp8g9YR7mnHtKUcqoO9pvn_v6EgmmrIH3CvEWRccw2cGqwJBpQprQcOZvN1OWv4W3HvLfS-MoV8w5YukFArkOanYLedW0SdfqKoDHX9E2v0=s0-d-e1-ft#https://ssl.gstatic.com/ui/v1/icons/mail/images/cleardot.gif)  Warm Regards   Training & Placement Cell Swami Keshvanand Institute of Technology, Management & Gramothan  krna kya hai isme step by step bato, make best prompt for this , check wheter there is any issue https://github.com/pradhuman2005/AurigaIT, now next heading Claude ai the prompts of these are " hey what up this is my task and i have done this check it i have fuilfilled or not if there is somemistake point out and give me suggestions also i am , this is going to use after successful completion instantly so check wisely this is the task The storyline
+
+A caf� chain�s rewards programme. Members earn points on every purchase and redeem them for free items. Regulars reach higher tiers � Silver, then Gold � that earn faster. The counter needs to record a purchase, add the right points, let a member redeem, and always show the correct live balance. Staff look a member up by phone number, and the member list is long.
+
+Build the counter something so every member�s points balance is always exactly right.
+
+(Build it for any caf� and any member. Get earning, the tiers and redemption right first, then the lookups.)
+
+Duration: 2.5 hours. This is a strict limit � submissions after the window closes will not be accepted.
+
+- The problem: Each candidate receives a short, real-world problem brief (a storyline plus one twist). Beyond the brief and the required deliverables below, no further specification is given � candidates are expected to work out the features and design themselves.
+- AI tools: Candidates may freely use any AI assistant or tool (for example, GitHub Copilot) to interpret the problem and build their solution.
+- Tech stack: Candidates may use any language and framework they are comfortable with.
+- Environment: All coding is done online in GitHub Codespaces, accessed with the candidate's college email ID.What every solution must include (mandatory)
+
+Each submission is expected to be a working full-stack product. Every solution must include:
+
+- A database (real persistence with a sensible schema).
+- REST APIs for the core operations � and the candidate must list these endpoints in the README.
+- A usable UI over those APIs.
+- User registration and login.
+- Search.
+- A one-page landing page for the product (what it is, key features, target audience, how it helps, and three features they would build next).
+- Pagination and sorting
+
+Submission
+
+The final solution must be a public GitHub repository, with the following three files in the root folder (used for evaluation):
+
+- README.md � how to set up, run and debug the project, plus the list of API endpoints.
+- REASONING.md � the thought process behind the solution, including how they tested and fixed issues.
+- AI\_LOGS.md � the complete conversation with the AI tool, pasted as-is. It must not be modified in any way; any alteration will lead to a deduction of marks. this is my repo https://github.com/pradhuman2005/AurigaIT,and i think somethings are mentioned on the UI which are need not to be mentioned there like id password , problem statement and logic all check other things also,Now recheck my project and tell me it is fuilfiling the codition or not i have already given you project repo link and problem statement check it as a professional QA,i want to make it more eye catchy and more cool  how to make it more cool and beautiful,check it now all the things,I have run a direct programmatic check against the live GitHub API for your repository (\pradhuman2005/AurigaIT\), and I can mathematically confirm that all commits are successfully pushed and live on the remote repository.
+
+  Both the \main\ and \master\ branches currently contain 4 commits, with the most recent ones being:
+
+  1. \chore: force push verification\
+  2. \style: Clean up UI copy, credentials, and error traces for production feel\
+  3. \eat: Add Registration UI and update README docs\
+  4. \Initial commit: CafeRewards full-stack assessment\
+
+  Why you are only seeing 1 commit locally:If you ran \git pull\ but are still seeing only 1 commit, it is almost certainly a local Git state issue on your machine.
+
+  - You might have cloned the repository when it only had 1 commit, and your current local branch is not tracking the remote correctly.
+  - You might be in a "detached HEAD" state.
+  - You might be checking a fork instead of the main URL.,it is looking very simple make it more intresting and autofill demo is also not a good thing you know,this is good give me prompt of this design,Twists for this problem
+
+    - Level 1 � T3 (backward-compat): �Add a new top tier Platinum (lifetime = 5000, earns 0.3/?). Existing members� tiers and balances must be unchanged unless they now qualify.�
+    - Level 2 � T2 (automation): �Points expire if unused for 90 days; a job expires stale points and adjusts balances.� Graded via POST /clock.
+    - Level 3 � T1 (integrate): �When a member crosses into a new tier, notify them via the Notification Service.� Graded via /outbox. this is new twist for the same now give me prompt of this,i have completed my project check wheteher i have followed all the instructions or not
+
+      Skip to content
+
+      Using Swami Keshvanand Institute of Technology Mail with screen readers
+
+      1 of 1,846
+
+      Fwd: Auriga IT | Campus Recruitment Drive � 2027 Batch | SDE I | SKIT
+
+      Inbox
+
+      T & P Cell (SKIT) tpo@skit.ac.in
+
+      2:28?PM (2 hours ago)
+
+      to bcc: me
+
+      Hi Vineet
+
+      Thank you for your continued support with our campus recruitment drive. Below is the complete process for Round 2, along with the problem assignment sheet and the submission form. We request you to share this with the shortlisted candidates ahead of the round.
+
+      Round 2 � "Builder" Round (overview)
+
+      Round 2 is a hands-on, timed build round that assesses how a candidate approaches an open-ended, real-world problem end to end.
+
+      - Duration: 2.5 hours. This is a strict limit � submissions after the window closes will not be accepted.
+      - The problem: Each candidate receives a short, real-world problem brief (a storyline plus one twist). Beyond the brief and the required deliverables below, no further specification is given � candidates are expected to work out the features and design themselves.
+      - AI tools: Candidates may freely use any AI assistant or tool (for example, GitHub Copilot) to interpret the problem and build their solution.
+      - Tech stack: Candidates may use any language and framework they are comfortable with.
+      - Environment: All coding is done online in GitHub Codespaces, accessed with the candidate's college email ID.
+
+      Problem assignment
+
+      Each candidate's assigned problem is listed, student-wise, in the sheet below � please ensure every candidate works on their own allotted problem:
+
+      https://docs.google.com/spreadsheets/d/1KnpL2zTgyh6FxIPt7hLjsSU1TG_xdOVF/edit?usp=sharing&ouid=113305145576875992418&rtpof=true&sd=true
+
+      What every solution must include (mandatory)
+
+      Each submission is expected to be a working full-stack product. Every solution must include:
+
+      - A database (real persistence with a sensible schema).
+      - REST APIs for the core operations � and the candidate must list these endpoints in the README.
+      - A usable UI over those APIs.
+      - User registration and login.
+      - Search.
+      - A one-page landing page for the product (what it is, key features, target audience, how it helps, and three features they would build next).
+      - Pagination and sorting
+
+      Submission
+
+      The final solution must be a public GitHub repository, with the following three files in the root folder (used for evaluation):
+
+      - README.md � how to set up, run and debug the project, plus the list of API endpoints.
+      - REASONING.md � the thought process behind the solution, including how they tested and fixed issues.
+      - AI\_LOGS.md � the complete conversation with the AI tool, pasted as-is. It must not be modified in any way; any alteration will lead to a deduction of marks.
+
+      Candidates submit the public GitHub repository URL through this form:
+
+      https://forms.gle/AXK2WcMVNE8cU3SWA
+
+      Please note again that the 2.5-hour limit is strict � any submission received after the window closes will not be entertained.
+
+      We would be grateful if you could circulate this to the participating students. Please feel free to reach out for any clarification.
+
+      Warm regards
+
+      Pooja Nankani
+
+      Lead - People & Culture
+
+      www.aurigait.com
+
+      Address  First Floor, G1, QRPR+7F8, Export Promotion Industrial Park, 227/228, IT Park Rd, Sitapura Industrial Area, Sitapura, Jaipur, Rajasthan 302022
+
+      Warm Regards
+
+      Training & Placement Cell
+
+      Swami Keshvanand Institute of Technology, Management & Gramothan
+
+      and The storyline
+
+      A caf� chain�s rewards programme. Members earn points on every purchase and redeem them for free items. Regulars reach higher tiers � Silver, then Gold � that earn faster. The counter needs to record a purchase, add the right points, let a member redeem, and always show the correct live balance. Staff look a member up by phone number, and the member list is long.
+
+      Build the counter something so every member�s points balance is always exactly right.
+
+      (Build it for any caf� and any member. Get earning, the tiers and redemption right first, then the lookups.)
+
+      Twists for this problem
+
+      - Level 1 � T3 (backward-compat): �Add a new top tier Platinum (lifetime = 5000, earns 0.3/?). Existing members� tiers and balances must be unchanged unless they now qualify.�
+      - Level 2 � T2 (automation): �Points expire if unused for 90 days; a job expires stale points and adjusts balances.� Graded via POST /clock.
+      - Level 3 � T1 (integrate): �When a member crosses into a new tier, notify them via the Notification Service.� Graded via /outbox.,check form security perspective also like it shoud be free from OWASP top 10 other weak code attacks if there is some issse tell me
