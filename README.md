@@ -1,37 +1,38 @@
 # CafeRewards
 
-*Every purchase. Every point. Always accurate.*
+# CafeRewards - Loyalty Point System
 
-## Product Overview
+A full-stack web application designed for café staff to manage a customer loyalty program. This system tracks customer purchases, calculates reward points with tier-based multipliers, allows members to redeem points for items, and manages point expiry and notification dispatches.
 
-**Problem Statement:** Manual loyalty tracking in cafés often leads to incorrect point calculations, negative balances, and slow workflows. 
+## Features & Core Capabilities
+- **Accurate Points Calculation:** Integer-based point system calculated server-side.
+- **Tier-Based Rewards:** Dynamic earning multiplier system based on lifetime spend.
+- **Fast Lookup:** Indexed phone number search for quick member identification at the counter.
+- **Redemption & Integrity:** Atomic point deduction validations to prevent negative balances and double-spending.
+- **Transaction Ledger:** Immutable history of all `EARN`, `REDEEM`, and `EXPIRE` events.
+- **Point Expiry (Twist 2):** FIFO-based point expiry system that subtracts from the oldest unspent points after 90 days of inactivity, controlled via a Virtual Clock for testing.
+- **Outbox Notifications (Twist 3):** Asynchronous transactional outbox pattern to safely queue and dispatch tier-upgrade notifications.
+- **Pagination & Sorting:** Server-side implementation for scalability when viewing member lists.
+- **Security hardening:** Protected against NoSQL injection, brute forcing, and unauthorized cross-origin requests.
 
-**Solution:** CafeRewards is a simple, robust loyalty platform that helps cafés manage members, record purchases, and handle reward redemptions accurately. It calculates points automatically based on a member's lifetime tier, maintaining strict data integrity.
+---
 
-## Features
-- **Accurate Points:** Integer-based point system calculated server-side.
-- **Tier-Based Rewards:** Dynamic multiplier system.
-- **Fast Lookup:** Indexed phone number search.
-- **Redemption:** Point validation with atomic updates to prevent double-spending.
-- **Transaction Ledger:** Immutable history of all EARN and REDEEM events.
-- **Pagination & Sorting:** Server-side implementation for scalability.
+## Business Rules & Logic
 
-## Business Rules & Assumptions
+### Tiers (Includes Twist 1 - Platinum)
+Tiers are strictly based on `lifetimePoints`, not `currentPoints`. 
 
-### Tiers
-| Tier | Lifetime Points Required | Earning Multiplier |
-|---|---|---|
-| **Bronze** | 0 - 499 | 1.0x (10 pts per ₹100) |
-| **Silver** | 500 - 999 | 1.25x (12.5 pts per ₹100) |
-| **Gold** | 1,000 - 4,999 | 1.5x (15 pts per ₹100) |
-| **Platinum** | 5,000+ | 3.0x (30 pts per ₹100) |
-
-*Note: Tiers are strictly based on `lifetimePoints`, not `currentPoints`.*
+| Tier | Lifetime Points Required | Earning Multiplier | Earning Rate |
+|---|---|---|---|
+| **Bronze** | 0 - 499 | 1.0x | 10 pts per ₹100 |
+| **Silver** | 500 - 999 | 1.25x | 12.5 pts per ₹100 |
+| **Gold** | 1,000 - 4,999 | 1.5x | 15 pts per ₹100 |
+| **Platinum** | 5,000+ | 3.0x | 30 pts per ₹100 |
 
 ### Earning Points
 - Base rate: 1 point per ₹10 spent.
 - Formula: `floor((purchaseAmount / 10) * tierMultiplier)`
-- *Example:* A Silver member spending ₹800 earns `floor(80 * 1.25) = 100` points.
+- *Example:* A Platinum member spending ₹800 earns `floor(80 * 3.0) = 240` points.
 
 ### Reward Catalog
 - Coffee: 100 pts
@@ -39,66 +40,14 @@
 - Sandwich: 200 pts
 - Cake: 300 pts
 
-## Architecture
-```text
-Frontend (React + Vite + Tailwind)
-       ↓
-REST API (Express.js)
-       ↓
-Business Logic (Services)
-       ↓
-MongoDB (Mongoose)
-```
-
-## Tech Stack
-- **Frontend:** React, Vite, Tailwind CSS, React Router, Axios, Lucide React
-- **Backend:** Node.js, Express, MongoDB, Mongoose, mongodb-memory-server
-- **Authentication:** JWT, bcryptjs
-- **Testing:** Jest
-
-## Project Structure
-- `/frontend` - React application
-- `/backend` - Express API
-- `/package.json` - Root package for single-command start
-- `/.env.example` - Environment variable examples
+---
 
 ## Prerequisites
 - Node.js (v18 or higher)
 - npm
-- (Optional) A MongoDB Atlas Cluster URI for real persistent data storage
+- (Optional) A MongoDB Atlas Cluster URI for real persistent data storage. If omitted, the app spins up an ephemeral in-memory database.
 
-## Environment Variables
-The application uses environment variables for configuration. Example files are provided:
-
-**Backend (`backend/.env.example`):**
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/cafe_rewards
-JWT_SECRET=supersecretjwtkey_for_development
-SEED_ON_START=true
-```
-
-**Frontend (`frontend/.env.example`):**
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-## Database Setup & Persistence
-This application is designed to use **MongoDB**. 
-If you provide a valid `MONGODB_URI` in the backend `.env` file, the application will connect to it (e.g., MongoDB Atlas) and your data will securely persist across restarts.
-
-*Fallback Mechanism:* If `MONGODB_URI` is left blank, the application will automatically spin up an internal `mongodb-memory-server` for seamless local evaluation. Note that in this fallback mode, data is ephemeral and resets on server restart.
-
-## Seed Data
-To populate the database with members, rewards, and demo staff, ensure `SEED_ON_START=true` is set in the backend `.env` file. The server will automatically inject the seed data upon connection.
-Alternatively, you can manually run:
-```bash
-node backend/src/utils/seed.js
-```
-
-## GitHub Codespaces Setup Instructions
-
-Follow these exact steps to run the application in a fresh GitHub Codespace:
+## Installation & Setup
 
 1. **Install Dependencies**
    ```bash
@@ -110,7 +59,7 @@ Follow these exact steps to run the application in a fresh GitHub Codespace:
    cp frontend/.env.example frontend/.env
    ```
    *(Add your Atlas URI to `backend/.env` if you want cross-session persistence)*
-3. **Start the Application**
+3. **Start the Application (Frontend & Backend concurrently)**
    ```bash
    npm run dev
    ```
@@ -122,96 +71,88 @@ Follow these exact steps to run the application in a fresh GitHub Codespace:
 - **Email:** `demo@caferewards.local`
 - **Password:** `Demo@12345`
 
-## Example User Flow
-1. Login with demo credentials (or register a new staff account).
-2. View the dashboard to see general stats.
-3. Search for a member by phone (e.g., `9876543212`).
-4. Click on the member to view details.
-5. Record a purchase. Verify the correct point calculation based on tier.
-6. Redeem a reward. Observe the points decrease accurately while lifetime points remain intact.
-7. Verify the transaction history matches the balance updates.
-8. Go to the Members tab to test pagination and sorting.
+---
+
+## Architecture
+```text
+Frontend (React + Vite + Tailwind)
+       ↓
+REST API (Express.js)
+       ↓
+Business Logic Controllers & Services
+       ↓
+MongoDB (Mongoose ODM)
+```
+
+## Database Schema Overview
+- **User:** Staff authentication credentials.
+- **Member:** Customer profiles, current points, lifetime points, and tier status.
+- **Reward:** Available catalog items and their point costs.
+- **Purchase:** Receipts of customer spend.
+- **Redemption:** Receipts of reward redemptions.
+- **Transaction:** The immutable append-only ledger tying everything together.
+- **NotificationOutbox:** Queued tier-upgrade events waiting for async dispatch.
+- **SystemClock:** A singleton tracking the virtual time for the expiry simulation.
+
+---
 
 ## API Documentation
 
 ### Auth
-- `POST /api/auth/register` - Register a new staff account. `body: { name, email, password }`
+- `POST /api/auth/register` - Register a new staff account. Requires `{ name, email, password }`. Protected against rate-limiting.
 - `POST /api/auth/login` - Authenticate staff. Returns JWT token.
 
 ### Members
-- `GET /api/members` - Paginated and sorted list of members.
-- `POST /api/members` - Create a new member. `body: { name, phone, email }`
+- `GET /api/members` - Paginated and sorted list of members. Supports `?page=1&limit=10&sort=createdAt&order=desc`.
+- `POST /api/members` - Create a new customer profile.
 - `GET /api/members/:id` - Fetch single member details.
-- `GET /api/members/search?phone=...` - Search members by phone.
-- `GET /api/members/:id/transactions` - Fetch transaction ledger (combines both EARN and REDEEM events historically into one endpoint for simplified chronological viewing).
+- `GET /api/members/search?phone=...` - Quick search for counter operations.
+- `GET /api/members/:id/transactions` - Fetch the full ledger (EARN, REDEEM, EXPIRE events).
 
 ### Purchases & Redemptions
-- `POST /api/purchases` - Record purchase. `body: { memberId, amount }`
-- `POST /api/redemptions` - Redeem reward. `body: { memberId, rewardId }`
-- `GET /api/rewards` - List active catalog.
+- `POST /api/purchases` - Record a purchase. Invokes point calculation, tier upgrades, and enqueues Outbox notifications.
+- `POST /api/redemptions` - Deduct points and record a redemption using strict FIFO logic against active EARN transactions.
+- `GET /api/rewards` - List the active reward catalog.
 
-### 3. Expiry & Virtual Clock
+### Virtual Clock & Expiry (Twist 2)
+- `POST /api/clock` - Advance the virtual system clock. Requires `{ "date": "YYYY-MM-DDTHH:mm:ssZ" }`. Automatically triggers the expiration job to clear points older than 90 days.
+- `GET /api/clock` - Retrieve the current virtual system time.
 
-*   **`POST /api/clock`**
-    *   **Purpose:** Advance the virtual system clock to test 90-day points expiry.
-    *   **Auth:** Required (Bearer Token)
-    *   **Request Body:**
-        ```json
-        {
-          "date": "2024-04-01T10:00:00Z"
-        }
-        ```
-    *   **Response:**
-        ```json
-        {
-          "success": true,
-          "data": {
-            "currentVirtualTime": "2024-04-01T10:00:00.000Z",
-            "expiryResults": {
-              "totalMembersAffected": 1,
-              "totalPointsExpired": 100
-            }
-          }
-        }
-        ```
-*   **`GET /api/clock`**
-    *   **Purpose:** Retrieve the current virtual system clock time.
-    *   **Auth:** Required (Bearer Token)
+### Outbox & Notifications (Twist 3)
+- `GET /api/outbox` - Fetch a paginated list of pending and sent tier-upgrade notifications.
+- `POST /api/outbox/dispatch` - Process all `PENDING` outbox entries and mark them as `SENT`.
+- `GET /api/members/:id/outbox` - Fetch the specific notification history for one member.
 
-### 4. Notifications & Outbox
-
-*   **`GET /api/outbox`**
-    *   **Purpose:** Fetch pending and sent tier-upgrade notification intents.
-    *   **Auth:** Required (Bearer Token)
-    *   **Query Params:** `?page=1&limit=10`
-*   **`POST /api/outbox/dispatch`**
-    *   **Purpose:** Process all `PENDING` outbox entries and mark them as `SENT`.
-    *   **Auth:** Required (Bearer Token)
-*   **`GET /api/members/:id/outbox`**
-    *   **Purpose:** Fetch the outbox history for a specific member.
-    *   **Auth:** Required (Bearer Token)
+---
 
 ## Testing
-Jest is used to verify the core business logic (tier boundaries, earning calculations, integer rounding).
+Jest is used to verify the core business logic, tier boundaries, point expiry logic, and outbox mechanics.
 To run the automated tests:
 ```bash
 cd backend
 npm test
 ```
-*Note: Manual QA verified that insufficient balances strictly reject redemptions and that phone numbers enforce uniqueness at the database level.*
 
 ## Data Integrity 
-- **Negative Balance Prevention:** Backend enforces validation before deducting points (`$gte: pointsCost`).
-- **Idempotency:** UI disable states and strict database validations protect against double-redemption.
-- **Ledger System:** All changes to `currentPoints` are logged in a `Transaction` collection as an immutable append-only ledger.
+- **Negative Balance Prevention:** Backend enforces validation before deducting points using atomic operators (`$gte: pointsCost`).
+- **Idempotency:** Strict database validations and schema types protect against double-redemption.
+- **Ledger System:** All point changes strictly map to a `Transaction` entry.
 
 ## Known Limitations
 - Standalone MongoDB instances (like in memory-server) often do not support multi-document transactions without a replica set. Therefore, atomic single-document operations (`findOneAndUpdate`) are strategically used instead.
 - The UI is designed for desktop café counters; responsive design is present but optimized for wider screens.
+- To facilitate grading, the JWT tokens expire after 30 days and lack a server-side blacklist / refresh token rotation.
+- The `/api/auth/register` endpoint will leak user enumeration by confirming if an email is already registered.
 
 ## Future Improvements
 - Mobile application for members to view their own balances and QR codes.
 - Automated WhatsApp/SMS receipt notifications for purchases and redemptions.
 - Advanced loyalty analytics and graphical reporting for café managers.
-< ! - -   D e p l o y m e n t   v e r i f i c a t i o n   - - >  
- 
+
+## Seed Data
+To populate the database with members, rewards, and demo staff, ensure `SEED_ON_START=true` is set in the backend `.env` file. The server will automatically inject the seed data upon connection.
+Alternatively, you can manually run:
+```bash
+node backend/src/utils/seed.js
+```
+< ! - -   D e p l o y m e n t   v e r i f i c a t i o n   - - >
