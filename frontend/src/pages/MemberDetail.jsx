@@ -134,13 +134,13 @@ export default function MemberDetail() {
           {/* Header Row */}
           <div className="flex justify-between items-start mb-10">
             <div>
-              <h2 className="text-2xl font-bold font-serif">{member.name}</h2>
+              <h2 className="text-xl font-bold font-sans text-cafe-ink">{member.name}</h2>
               <p className="opacity-60 text-sm mt-1">{member.phone}</p>
             </div>
             {/* Tier Seal */}
             <div className={`flex items-center px-3 py-1.5 rounded-full ${tierColors.tint}`}>
-              <div className={`h-2 w-2 rounded-full ${tierColors.bg} mr-2`}></div>
-              <span className={`text-xs font-bold uppercase tracking-wide ${tierColors.text}`}>
+              <div className={`h-1.5 w-1.5 rounded-full ${tierColors.bg} mr-2`}></div>
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${tierColors.text}`}>
                 {member.tier} &middot; {getMultiplier(member.tier)}x
               </span>
             </div>
@@ -148,28 +148,28 @@ export default function MemberDetail() {
           
           {/* Main Balance */}
           <div className="mb-10 text-center">
-            <div className="text-xs uppercase tracking-widest font-semibold opacity-50 mb-3">Available Balance</div>
+            <div className="text-[10px] uppercase tracking-[0.1em] font-semibold text-cafe-muted mb-2">Available Balance</div>
             <div className="flex items-baseline justify-center">
               <span className="text-7xl sm:text-[80px] font-serif font-bold text-cafe-ink tabular-nums leading-none">
-                {animatedPoints}
+                {animatedPoints.toLocaleString()}
               </span>
-              <span className="ml-3 text-lg font-medium opacity-60">pts</span>
+              <span className="ml-2 text-sm font-medium text-cafe-ink opacity-80">pts</span>
             </div>
           </div>
           
           {/* 3 Stats Row */}
-          <div className="grid grid-cols-3 gap-4 pt-8 dashed-divider text-center">
+          <div className="grid grid-cols-3 gap-2 pt-6 dashed-divider text-center">
             <div>
-              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Lifetime</p>
-              <p className="font-bold">{member.lifetimePoints} pts</p>
+              <p className="text-[10px] text-cafe-muted mb-1">Lifetime earned</p>
+              <p className="text-sm font-medium text-cafe-ink">{member.lifetimePoints.toLocaleString()} pts</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Tier</p>
-              <p className="font-bold">{member.tier}</p>
+              <p className="text-[10px] text-cafe-muted mb-1">Tier</p>
+              <p className="text-sm font-medium text-cafe-ink">{member.tier}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Member Since</p>
-              <p className="font-bold">{new Date(member.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</p>
+              <p className="text-[10px] text-cafe-muted mb-1">Member since</p>
+              <p className="text-sm font-medium text-cafe-ink">{new Date(member.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</p>
             </div>
           </div>
         </div>
@@ -195,14 +195,43 @@ export default function MemberDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="pt-12 text-center">
+        <h3 className="text-3xl font-serif text-cafe-ink mb-10">Redeem a reward</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {rewards.map(reward => {
+            const affordable = member.currentPoints >= reward.pointsCost;
+            return (
+              <button
+                key={reward._id}
+                disabled={!affordable}
+                onClick={() => handleRedeem(reward._id)}
+                className={`reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all ${
+                  affordable ? 'hover:border-cafe-caramel cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'
+                }`}
+              >
+                <div className={`h-12 w-12 rounded-xl flex items-center justify-center mb-4 ${
+                  reward.name.includes('Coffee') && !reward.name.includes('Cold') ? 'bg-[#F3E6DF]' : 
+                  reward.name.includes('Cold') ? 'bg-[#E8ECEF]' :
+                  reward.name.includes('Sandwich') ? 'bg-[#F3E7CB]' : 'bg-[#F9E8E8]'
+                }`}>
+                  <span className="text-2xl">
+                    {reward.name.includes('Coffee') && !reward.name.includes('Cold') ? '☕' : 
+                     reward.name.includes('Cold') ? '🧊' :
+                     reward.name.includes('Sandwich') ? '🥪' : '🍰'}
+                  </span>
+                </div>
+                <p className="font-bold text-cafe-ink mb-1">{reward.name}</p>
+                <p className="text-sm font-medium text-cafe-caramel">{reward.pointsCost} pts</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-16">
         {/* Record Purchase Action */}
         <div>
-          <h3 className="text-lg font-bold font-serif mb-4 flex items-center">
-            <PlusCircle className="h-5 w-5 mr-2 text-cafe-caramel" />
-            Record Purchase
-          </h3>
-          
+          <h3 className="text-xl font-bold font-serif mb-4">Record Purchase</h3>
           {!showPurchaseForm ? (
             <button
               onClick={() => setShowPurchaseForm(true)}
@@ -240,44 +269,6 @@ export default function MemberDetail() {
             </form>
           )}
         </div>
-
-        {/* Redeem Rewards */}
-        <div>
-          <h3 className="text-lg font-bold font-serif mb-4 flex items-center">
-            <Coffee className="h-5 w-5 mr-2 text-cafe-caramel" />
-            Redeem Rewards
-          </h3>
-          <div className="space-y-3">
-            {rewards.map(reward => {
-              const affordable = member.currentPoints >= reward.pointsCost;
-              return (
-                <div key={reward._id} className="reward-card-flat">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded bg-[#F3E6DF] flex items-center justify-center mr-4 text-cafe-caramel">
-                      {reward.name.toLowerCase().includes('coffee') ? <Coffee className="h-5 w-5" /> : <div className="text-sm font-serif font-bold text-cafe-caramel">R</div>}
-                    </div>
-                    <div>
-                      <p className="font-medium">{reward.name}</p>
-                      <p className="text-sm font-bold text-cafe-caramel mt-0.5">{reward.pointsCost} pts</p>
-                    </div>
-                  </div>
-                  <button
-                    disabled={!affordable}
-                    onClick={() => handleRedeem(reward._id)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
-                      affordable 
-                      ? 'border border-cafe-caramel text-cafe-caramel hover:bg-cafe-caramel hover:text-white' 
-                      : 'border border-cafe-border text-cafe-muted opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    Redeem
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
 
       {/* Ledger */}
       <div className="pt-8">
