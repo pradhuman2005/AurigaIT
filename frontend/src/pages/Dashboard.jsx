@@ -129,6 +129,7 @@ export default function Dashboard() {
                 <dl>
                   <dt className="text-sm font-medium opacity-70 truncate">Quick Actions</dt>
                   <dd className="text-sm mt-1 text-cafe-caramel font-medium cursor-pointer hover:underline" onClick={() => navigate('/members')}>View all members</dd>
+                  <dd className="text-sm mt-1 text-cafe-caramel font-medium cursor-pointer hover:underline" onClick={() => navigate('/members')}>Add new member</dd>
                 </dl>
               </div>
             </div>

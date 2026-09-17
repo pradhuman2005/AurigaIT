@@ -47,6 +47,11 @@ export const getMember = async (id) => {
   return response.data;
 };
 
+export const createMember = async (data) => {
+  const response = await api.post('/members', data);
+  return response.data;
+};
+
 export const getMemberTransactions = async (id) => {
   const response = await api.get(`/members/${id}/transactions`);
   return response.data;
