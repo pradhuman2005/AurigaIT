@@ -8,18 +8,19 @@ const generateToken = (id) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name || !email || !password) {
+  if (!name || !email || !password || typeof email !== 'string' || typeof password !== 'string') {
     res.status(400);
-    throw new Error('Please add all fields');
+    throw new Error('Please add all fields with valid types');
   }
 
-  const userExists = await User.findOne({ email });
+  const normalizedEmail = email.toLowerCase();
+  const userExists = await User.findOne({ email: normalizedEmail });
   if (userExists) {
     res.status(409);
     throw new Error('User already exists');
   }
 
-  const user = await User.create({ name, email, passwordHash: password });
+  const user = await User.create({ name, email: normalizedEmail, passwordHash: password });
 
   if (user) {
     res.status(201).json({
@@ -37,7 +38,13 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+    res.status(400);
+    throw new Error('Please provide email and password');
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  const user = await User.findOne({ email: normalizedEmail });
 
   if (user && (await user.matchPassword(password))) {
     res.json({

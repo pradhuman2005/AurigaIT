@@ -25,3 +25,7 @@ I chose to implement an **asynchronous dispatch** via a dedicated `POST /api/out
 **Multiple Tier Crossings:**
 If a single purchase spans multiple tiers (e.g. Bronze -> Gold directly, skipping Silver), the system creates exactly **one** outbox entry representing the final state transition.
 *Tradeoff:* Sending one notification like "You upgraded from Bronze to Gold!" is a better user experience than spamming them with "You reached Silver!" followed instantly by "You reached Gold!". The `tierAtPurchase` vs `newTier` comparison handles this elegantly.
+
+## Security Tradeoffs & Known Limitations
+- **JWT Expiry:** The authentication system issues a 30-day JWT without a refresh token rotation or server-side blacklist mechanism. In a fully robust production system, tokens would be shorter-lived with a refresh flow to support active revocation. This was accepted as a tradeoff for demo simplicity.
+- **User Enumeration (Registration):** The /api/auth/register endpoint returns "User already exists" if an email is taken, which theoretically allows user enumeration. Given this is an internal staff tool rather than a public SaaS, the risk is minimal and accepted.

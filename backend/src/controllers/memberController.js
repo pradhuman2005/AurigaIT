@@ -37,9 +37,9 @@ const getMemberById = asyncHandler(async (req, res) => {
 
 const searchMembers = asyncHandler(async (req, res) => {
   const phone = req.query.phone;
-  if (!phone) {
+  if (!phone || typeof phone !== 'string') {
     res.status(400);
-    throw new Error('Phone number query parameter is required');
+    throw new Error('Phone number query parameter must be a string');
   }
   const members = await Member.find({ phone: { $regex: phone, $options: 'i' } });
   res.json(members);
