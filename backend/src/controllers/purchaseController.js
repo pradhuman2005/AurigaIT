@@ -45,6 +45,7 @@ const createPurchase = asyncHandler(async (req, res) => {
       memberId: member._id,
       type: 'EARN',
       points: pointsEarned,
+      description: `Purchase of ₹${amount}`,
       remainingPoints: pointsEarned, // Twist 2 FIFO expiry tracking
       referenceType: 'Purchase',
       referenceId: purchase._id,

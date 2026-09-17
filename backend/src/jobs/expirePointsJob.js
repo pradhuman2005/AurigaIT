@@ -51,6 +51,7 @@ const expirePointsJob = async (virtualClockDate) => {
         memberId: member._id,
         type: 'EXPIRE',
         points: -totalExpired, // Negative to show deduction
+        description: 'Points expired (90 days inactive)',
         remainingPoints: 0,
         referenceType: 'Expiry',
         referenceId: member._id, // Just using member ID as reference

@@ -74,6 +74,7 @@ const createRedemption = asyncHandler(async (req, res) => {
     memberId: member._id,
     type: 'REDEEM',
     points: -cost,
+    description: `Redeemed ${reward.name}`,
     remainingPoints: 0,
     referenceType: 'Redemption',
     referenceId: redemption._id,

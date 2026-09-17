@@ -114,7 +114,7 @@ export default function MemberDetail() {
   const redeemedRewardNames = new Set(
     transactions.filter(t => t.type === 'REDEEM').map(t => {
       // E.g. "Redeemed Coffee"
-      return t.description.replace('Redeemed ', '');
+      return t.description ? t.description.replace('Redeemed ', '') : '';
     })
   );
 
