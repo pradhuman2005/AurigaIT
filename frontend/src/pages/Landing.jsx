@@ -20,16 +20,16 @@ export default function Landing() {
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-extrabold text-slate-900">The Problem</h2>
+            <h2 className="text-3xl font-extrabold text-slate-900">Streamline Your Counter</h2>
             <p className="mt-4 text-lg text-slate-500 max-w-3xl mx-auto">
-              Manual loyalty tracking can cause incorrect point calculations, slow member lookup, redemption mistakes, and unclear balances.
+              Ditch the paper punch cards and messy spreadsheets. CafeRewards eliminates calculation errors, speeds up the checkout line with instant phone lookups, and ensures your regulars always have a crystal-clear view of their points.
             </p>
           </div>
           
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-extrabold text-slate-900">The Solution</h2>
+            <h2 className="text-3xl font-extrabold text-slate-900">How It Works</h2>
             <p className="mt-4 text-lg text-slate-500 max-w-3xl mx-auto">
-              CafeRewards provides automatic tier-based earning, real-time balances, fast phone lookup, effortless reward redemption, and full transaction history.
+              Our platform automates the entire loyalty lifecycle. From seamless tier progression and dynamic point multipliers to secure, double-spend-proof redemptions—all backed by an immutable transaction ledger.
             </p>
           </div>
 

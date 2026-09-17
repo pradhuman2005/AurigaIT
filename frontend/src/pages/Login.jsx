@@ -67,8 +67,14 @@ export default function Login() {
           </form>
           
           <div className="mt-6 text-center text-sm text-slate-500">
-            <p>Demo Account: demo@caferewards.local / Demo@12345</p>
-            <p className="mt-2">Need an account? <Link to="/register" className="text-amber-600 hover:text-amber-500">Register here</Link></p>
+            <button 
+              type="button" 
+              onClick={() => { setEmail('demo@caferewards.local'); setPassword('Demo@12345'); }}
+              className="text-amber-600 hover:text-amber-500 font-medium bg-orange-50 px-3 py-1 rounded border border-amber-200 transition-colors"
+            >
+              Autofill Demo Account
+            </button>
+            <p className="mt-4">Need an account? <Link to="/register" className="text-amber-600 hover:text-amber-500">Register here</Link></p>
           </div>
         </div>
       </div>
