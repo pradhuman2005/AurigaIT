@@ -43,3 +43,19 @@ During a security review, several OWASP vulnerabilities were identified and reso
 **Known Tradeoffs Accepted:**
 - **JWT Expiry:** The authentication system issues a 30-day JWT without a refresh token rotation or server-side blacklist mechanism. In a robust production system, tokens would be shorter-lived with a refresh flow. This was accepted as a tradeoff for demo simplicity.
 - **User Enumeration:** The `/api/auth/register` endpoint returns "User already exists" if an email is taken. Given this is an internal staff tool, the enumeration risk is minimal and accepted.
+
+## Testing and Debugging Process
+
+Throughout the development lifecycle, I employed a mix of automated integration tests and manual QA to verify functionality and resolve edge cases:
+
+**1. Automated Integration Testing (Jest)**
+- Created 	ests/ specifically for validating the Twist 2 (Virtual Clock Expiry) and Twist 3 (Outbox) logic.
+- **Fixing the Expiry Math:** Early tests revealed that expiring points simply by subtracting from currentPoints caused race conditions with Redemptions. I debugged this by introducing the emainingPoints field on the Transaction model, allowing tests to correctly simulate FIFO consumption.
+- **Outbox State Capture:** Tests verified that jumping from Bronze to Platinum creates exactly one outbox payload, successfully catching and fixing an early bug where the loop created multiple outbox entries.
+
+**2. Manual UI QA & Bug Fixes**
+- **Missing Description Crash:** During UI testing, the React app crashed when reading a legacy transaction missing a description field. I fixed this by adding safe optional chaining (	.description?.replace()) in MemberDetail.jsx and enforcing a default description in the schema.
+- **Redemption Validation Error:** Mongoose threw a ValidationError: Path rewardName is required during manual redemptions. I traced this to edemptionController.js missing the ewardName mapping and quickly patched it to pull the name dynamically from the Reward collection.
+- **Mongoose CastError on Clock:** Calling indById('clock') initially crashed the app because Mongoose expects a 24-character hex ObjectId. I fixed this by explicitly redefining _id: { type: String } in the SystemClock schema.
+
+By combining strict unit tests for mathematical business logic with manual frontend QA for the user flows, the application became incredibly stable and robust against edge cases.

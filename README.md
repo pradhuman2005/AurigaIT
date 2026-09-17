@@ -1,7 +1,5 @@
 # CafeRewards
 
-# CafeRewards
-
 ## 1. Project Overview
 CafeRewards is a full-stack web application designed for café staff to manage a customer loyalty program. It tracks customer purchases, mathematically calculates reward points based on lifetime tiers, safely handles reward redemptions, and reliably dispatches notifications. 
 
