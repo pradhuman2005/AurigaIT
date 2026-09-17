@@ -82,10 +82,13 @@ export default function MemberDetail() {
     }
   };
 
-  const handleRedeem = async (rewardId) => {
+  const handleRedeem = async (reward) => {
+    if (!window.confirm(`Are you sure you want to redeem ${reward.name} for ${reward.pointsCost} points?`)) {
+      return;
+    }
     try {
       setError('');
-      await api.post('/redemptions', { memberId: id, rewardId });
+      await api.post('/redemptions', { memberId: id, rewardId: reward._id });
       fetchData();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to redeem reward');
@@ -204,7 +207,7 @@ export default function MemberDetail() {
               <button
                 key={reward._id}
                 disabled={!affordable}
-                onClick={() => handleRedeem(reward._id)}
+                onClick={() => handleRedeem(reward)}
                 className={`reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all ${
                   affordable ? 'hover:border-cafe-caramel cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'
                 }`}
