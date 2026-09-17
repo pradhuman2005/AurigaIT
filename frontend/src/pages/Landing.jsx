@@ -37,68 +37,41 @@ export default function Landing() {
           </Link>
         </div>
 
-        {/* Demo Preview Card */}
-        <div className="w-full max-w-md mx-auto text-left transform translate-y-8">
-          <div className="loyalty-card">
-            <div className="loyalty-card-accent bg-[var(--color-tier-gold)]"></div>
-            
-            <div className="p-8 pb-6">
-              <div className="flex justify-between items-start mb-10">
-                <div>
-                  <h2 className="text-xl font-bold text-cafe-ink">Rohan Mehta</h2>
-                  <p className="text-cafe-muted text-sm mt-1">+91 98765 43210</p>
-                </div>
-                <div className="flex items-center px-3 py-1.5 rounded-full bg-[var(--color-tier-gold-tint)]">
-                  <div className="h-1.5 w-1.5 rounded-full bg-[var(--color-tier-gold)] mr-2"></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-tier-gold)]">
-                    Gold &middot; 1.5x
-                  </span>
-                </div>
+        {/* Demo Rewards Grid */}
+        <div className="w-full max-w-4xl mx-auto mt-8 transform translate-y-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            <div className="reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all bg-cafe-surface hover:border-cafe-caramel cursor-default hover:shadow-md border border-cafe-border rounded-2xl">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-4 bg-[#F3E6DF]">
+                <span className="text-2xl">☕</span>
               </div>
-              
-              <div className="mb-8">
-                <div className="text-[10px] uppercase tracking-[0.1em] font-semibold text-cafe-muted mb-2">Current Balance</div>
-                <div className="flex items-baseline">
-                  <span className="text-7xl font-serif text-cafe-ink leading-none">1,500</span>
-                  <span className="ml-2 text-sm font-medium text-cafe-ink">pts</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2 pt-6 dashed-divider">
-                <div>
-                  <p className="text-[10px] text-cafe-muted mb-1">Lifetime earned</p>
-                  <p className="text-sm font-medium text-cafe-ink">2,000 pts</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-cafe-muted mb-1">Tier</p>
-                  <p className="text-sm font-medium text-cafe-ink">Gold</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-cafe-muted mb-1">Member since</p>
-                  <p className="text-sm font-medium text-cafe-ink">Mar 2025</p>
-                </div>
-              </div>
+              <p className="font-bold text-cafe-ink mb-1">Coffee</p>
+              <p className="text-sm font-medium text-cafe-caramel">100 pts</p>
             </div>
 
-            <div className="p-6 pt-4 flex gap-3 justify-center">
-              <div className="flex items-center px-3 py-1.5 rounded text-xs font-medium bg-[var(--color-tier-gold-tint)] text-[var(--color-tier-gold)]">
-                <CheckCircle className="h-3 w-3 mr-1.5" /> Coffee
+            <div className="reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all bg-cafe-surface hover:border-cafe-caramel cursor-default hover:shadow-md border border-cafe-border rounded-2xl">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-4 bg-[#E8ECEF]">
+                <span className="text-2xl">🧊</span>
               </div>
-              <div className="flex items-center px-3 py-1.5 rounded text-xs font-medium bg-[var(--color-tier-gold-tint)] text-[var(--color-tier-gold)]">
-                <CheckCircle className="h-3 w-3 mr-1.5" /> Cake
+              <p className="font-bold text-cafe-ink mb-1">Cold Coffee</p>
+              <p className="text-sm font-medium text-cafe-caramel">150 pts</p>
+            </div>
+
+            <div className="reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all bg-cafe-surface hover:border-cafe-caramel cursor-default hover:shadow-md border border-cafe-border rounded-2xl">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-4 bg-[#F3E7CB]">
+                <span className="text-2xl">🥪</span>
               </div>
-              <div className="flex items-center px-3 py-1.5 rounded text-xs font-medium border border-dashed border-cafe-border text-cafe-muted bg-transparent">
-                Sandwich
+              <p className="font-bold text-cafe-ink mb-1">Sandwich</p>
+              <p className="text-sm font-medium text-cafe-caramel">200 pts</p>
+            </div>
+
+            <div className="reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all bg-cafe-surface hover:border-cafe-caramel cursor-default hover:shadow-md border border-cafe-border rounded-2xl">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-4 bg-[#F9E8E8]">
+                <span className="text-2xl">🍰</span>
               </div>
-              <div className="flex items-center px-3 py-1.5 rounded text-xs font-medium border border-dashed border-cafe-border text-cafe-muted bg-transparent">
-                Cold Coffee
-              </div>
+              <p className="font-bold text-cafe-ink mb-1">Cake</p>
+              <p className="text-sm font-medium text-cafe-caramel">300 pts</p>
             </div>
           </div>
-          
-          <p className="text-center text-sm text-cafe-muted mt-12 mb-8 italic">
-            Design direction preview — not the final app, just the new visual language.
-          </p>
         </div>
       </main>
     </div>
