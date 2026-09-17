@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Member = require('../models/Member');
 const Purchase = require('../models/Purchase');
 const Transaction = require('../models/Transaction');
+const NotificationOutbox = require('../models/NotificationOutbox');
 const mongoose = require('mongoose');
 const { calculatePoints, calculateTier } = require('../services/pointsService');
 
@@ -26,10 +27,6 @@ const createPurchase = asyncHandler(async (req, res) => {
   const newLifetimePoints = member.lifetimePoints + pointsEarned;
   const newTier = calculateTier(newLifetimePoints);
 
-  // Use transaction if supported by replica set. 
-  // Given Codespaces standalone mongo, we might not have replica set, so we do operations sequentially.
-  // This is a tradeoff mentioned in README.
-  
   const purchase = new Purchase({
     memberId: member._id,
     amount,
@@ -48,11 +45,32 @@ const createPurchase = asyncHandler(async (req, res) => {
       memberId: member._id,
       type: 'EARN',
       points: pointsEarned,
+      remainingPoints: pointsEarned, // Twist 2 FIFO expiry tracking
       referenceType: 'Purchase',
       referenceId: purchase._id,
       balanceAfter: member.currentPoints
     });
     await transaction.save();
+  }
+
+  // Twist 3: Tier Upgrade Notification via Outbox
+  if (newTier !== tierAtPurchase) {
+    try {
+      await NotificationOutbox.create({
+        memberId: member._id,
+        type: 'TIER_UPGRADE',
+        payload: {
+          previousTier: tierAtPurchase,
+          newTier: newTier,
+          lifetimePoints: newLifetimePoints,
+          upgradedAt: new Date() // Keeping real date for audit
+        },
+        status: 'PENDING'
+      });
+    } catch (outboxError) {
+      // Do not block purchase on outbox failure, just log it
+      console.error('Failed to create outbox entry for tier upgrade:', outboxError);
+    }
   }
 
   res.status(201).json({

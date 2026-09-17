@@ -37,19 +37,15 @@ const seedData = async () => {
       { name: 'Amit Kumar', phone: '9876543210', currentPoints: 50, lifetimePoints: 50, tier: 'Bronze' },
       { name: 'Priya Sharma', phone: '9876543211', currentPoints: 499, lifetimePoints: 499, tier: 'Bronze' },
       { name: 'Rahul Singh', phone: '9876543212', currentPoints: 500, lifetimePoints: 500, tier: 'Silver' },
-      { name: 'Neha Gupta', phone: '9876543213', currentPoints: 800, lifetimePoints: 800, tier: 'Silver' },
-      { name: 'Vikram Patel', phone: '9876543214', currentPoints: 999, lifetimePoints: 999, tier: 'Silver' },
       { name: 'Anjali Desai', phone: '9876543215', currentPoints: 1000, lifetimePoints: 1000, tier: 'Gold' },
       { name: 'Rohan Mehta', phone: '9876543216', currentPoints: 1500, lifetimePoints: 2000, tier: 'Gold' },
-      // add a few more random members
-      { name: 'Sanjay Dutt', phone: '9998887776', currentPoints: 120, lifetimePoints: 120, tier: 'Bronze' },
       { name: 'Kiran Rao', phone: '9998887775', currentPoints: 340, lifetimePoints: 340, tier: 'Bronze' },
-      { name: 'Pooja Hegde', phone: '9998887774', currentPoints: 600, lifetimePoints: 600, tier: 'Silver' },
       { name: 'Vijay Kumar', phone: '9998887773', currentPoints: 1100, lifetimePoints: 1100, tier: 'Gold' },
-      { name: 'Deepika P', phone: '9998887772', currentPoints: 20, lifetimePoints: 20, tier: 'Bronze' },
-      { name: 'Ranveer S', phone: '9998887771', currentPoints: 750, lifetimePoints: 750, tier: 'Silver' },
-      { name: 'Alia B', phone: '9998887770', currentPoints: 10, lifetimePoints: 10, tier: 'Bronze' },
       { name: 'Shahrukh K', phone: '9998887769', currentPoints: 2500, lifetimePoints: 3000, tier: 'Gold' },
+      // Boundary testing members for Twist 1
+      { name: 'Gold Boundary', phone: '9998887760', currentPoints: 4999, lifetimePoints: 4999, tier: 'Gold' },
+      { name: 'Platinum Boundary', phone: '9998887761', currentPoints: 5000, lifetimePoints: 5000, tier: 'Platinum' },
+      { name: 'Platinum Elite', phone: '9998887762', currentPoints: 8000, lifetimePoints: 8500, tier: 'Platinum' }
     ]);
 
     console.log('Data Imported!');

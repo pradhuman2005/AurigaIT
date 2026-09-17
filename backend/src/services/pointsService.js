@@ -3,6 +3,7 @@ const getTierMultiplier = (tier) => {
     case 'Bronze': return 1.0;
     case 'Silver': return 1.25;
     case 'Gold': return 1.5;
+    case 'Platinum': return 3.0;
     default: return 1.0;
   }
 };
@@ -13,6 +14,7 @@ const calculatePoints = (purchaseAmount, tier) => {
 };
 
 const calculateTier = (lifetimePoints) => {
+  if (lifetimePoints >= 5000) return 'Platinum';
   if (lifetimePoints >= 1000) return 'Gold';
   if (lifetimePoints >= 500) return 'Silver';
   return 'Bronze';

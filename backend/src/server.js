@@ -18,6 +18,8 @@ app.use('/api/members', require('./routes/memberRoutes'));
 app.use('/api/purchases', require('./routes/purchaseRoutes'));
 app.use('/api/redemptions', require('./routes/redemptionRoutes'));
 app.use('/api/rewards', require('./routes/rewardRoutes'));
+app.use('/api/clock', require('./routes/clockRoutes'));
+app.use('/api/outbox', require('./routes/outboxRoutes'));
 
 app.get('/', (req, res) => res.send('API is running...'));
 

@@ -269,10 +269,11 @@ export default function MemberDetail() {
             </form>
           )}
         </div>
+      </div>
 
       {/* Ledger */}
-      <div className="pt-8">
-        <h3 className="text-lg font-bold font-serif mb-6">Transaction Ledger</h3>
+      <div className="pt-16">
+        <h3 className="text-xl font-bold font-serif mb-6">Transaction Ledger</h3>
         <div className="bg-cafe-surface rounded-xl border border-cafe-border overflow-hidden">
           <ul className="divide-y divide-cafe-border">
             {transactions.map(t => (

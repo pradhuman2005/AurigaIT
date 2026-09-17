@@ -6,7 +6,12 @@ const memberSchema = mongoose.Schema({
   email: { type: String },
   currentPoints: { type: Number, required: true, default: 0, min: 0 },
   lifetimePoints: { type: Number, required: true, default: 0, min: 0 },
-  tier: { type: String, required: true, enum: ['Bronze', 'Silver', 'Gold'], default: 'Bronze' },
+  tier: {
+    type: String,
+    required: true,
+    enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
+    default: 'Bronze'
+  },
 }, { timestamps: true });
 
 // Create index on phone

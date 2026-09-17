@@ -11,6 +11,9 @@ describe('Points and Tier Business Logic', () => {
     it('Gold should have 1.5 multiplier', () => {
       expect(getTierMultiplier('Gold')).toBe(1.5);
     });
+    it('Platinum should have 3.0 multiplier', () => {
+      expect(getTierMultiplier('Platinum')).toBe(3.0);
+    });
   });
 
   describe('Tier Calculation (Based on Lifetime Points)', () => {
@@ -22,9 +25,13 @@ describe('Points and Tier Business Logic', () => {
       expect(calculateTier(500)).toBe('Silver');
       expect(calculateTier(999)).toBe('Silver');
     });
-    it('1000 and above is Gold', () => {
+    it('1000 to 4999 is Gold', () => {
       expect(calculateTier(1000)).toBe('Gold');
-      expect(calculateTier(2500)).toBe('Gold');
+      expect(calculateTier(4999)).toBe('Gold');
+    });
+    it('5000 and above is Platinum', () => {
+      expect(calculateTier(5000)).toBe('Platinum');
+      expect(calculateTier(9999)).toBe('Platinum');
     });
   });
 
@@ -40,8 +47,11 @@ describe('Points and Tier Business Logic', () => {
       // 500 / 10 * 1.5 = 75
       expect(calculatePoints(500, 'Gold')).toBe(75);
     });
+    it('Platinum earning (₹1000 -> 300 pts)', () => {
+      expect(calculatePoints(1000, 'Platinum')).toBe(300);
+    });
     it('Points are always integers', () => {
-      expect(calculatePoints(199, 'Silver')).toBe(24); // 19.9 * 1.25 = 24.875 -> 24
+      expect(calculatePoints(199, 'Silver')).toBe(24);
     });
   });
 });
