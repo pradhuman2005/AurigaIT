@@ -83,6 +83,11 @@ export default function MemberDetail() {
   };
 
   const handleRedeem = async (reward) => {
+    if (member.currentPoints < reward.pointsCost) {
+      alert(`Insufficient points. This member needs ${reward.pointsCost - member.currentPoints} more points to redeem ${reward.name}.`);
+      return;
+    }
+    
     if (!window.confirm(`Are you sure you want to redeem ${reward.name} for ${reward.pointsCost} points?`)) {
       return;
     }
@@ -206,10 +211,9 @@ export default function MemberDetail() {
             return (
               <button
                 key={reward._id}
-                disabled={!affordable}
                 onClick={() => handleRedeem(reward)}
                 className={`reward-card-flat flex flex-col items-center justify-center p-6 sm:p-8 text-center transition-all ${
-                  affordable ? 'hover:border-cafe-caramel cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'
+                  affordable ? 'hover:border-cafe-caramel cursor-pointer hover:shadow-md' : 'opacity-50 cursor-pointer'
                 }`}
               >
                 <div className={`h-12 w-12 rounded-xl flex items-center justify-center mb-4 ${
