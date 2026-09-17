@@ -1,6 +1,55 @@
 @import "tailwindcss";
 
+@theme {
+  --color-cafe-base: #FAF6F0;
+  --color-cafe-ink: #2B1D14;
+  --color-cafe-caramel: #C4622D;
+  --color-tier-bronze: #A9744F;
+  --color-tier-silver: #8E9AA6;
+  --color-tier-gold: #C9A34E;
+  --font-serif: "Fraunces", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
 body {
-  background-color: #fff7ed;
-  color: #1e293b;
+  background-color: var(--color-cafe-base);
+  color: var(--color-cafe-ink);
+  font-family: var(--font-sans);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.ticket-stub {
+  background: white;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.ticket-stub::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background-image: linear-gradient(to right, transparent 50%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 10px 0, transparent 10px, white 10px);
+  background-size: 20px 8px;
+  z-index: 10;
+}
+
+.ticket-tier-bar {
+  height: 16px;
+  width: 100%;
+}
+
+.chalkboard-label {
+  font-family: var(--font-serif);
+  font-style: italic;
+  letter-spacing: 0.05em;
+  color: var(--color-cafe-ink);
+  opacity: 0.8;
 }

@@ -38,49 +38,58 @@ export default function Members() {
     setPagination({ ...pagination, page: 1 });
   };
 
+  const getSortIcon = (field) => {
+    if (sortField !== field) return null;
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-        <h3 className="text-lg leading-6 font-medium text-slate-900">Members List</h3>
-        <div className="text-sm text-slate-500">Total: {pagination.totalItems}</div>
+    <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-opacity-10 border-cafe-ink">
+      <div className="px-6 py-5 border-b border-opacity-10 border-cafe-ink flex justify-between items-center bg-cafe-base">
+        <h3 className="text-xl leading-6 font-bold font-serif text-cafe-ink">All Members</h3>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
+        <table className="min-w-full divide-y divide-opacity-10 divide-cafe-ink">
           <thead className="bg-slate-50">
             <tr>
-              {['Name', 'Phone', 'Tier', 'Current Points', 'Lifetime Points'].map((col) => {
-                const field = col.replace(' ', '').charAt(0).toLowerCase() + col.replace(' ', '').slice(1);
-                const actualField = field === 'currentPoints' ? 'currentPoints' : field === 'lifetimePoints' ? 'lifetimePoints' : field.toLowerCase();
-                return (
-                  <th
-                    key={col}
-                    onClick={() => handleSort(actualField)}
-                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100"
-                  >
-                    {col} {sortField === actualField ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                  </th>
-                )
-              })}
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Action</th>
+              <th onClick={() => handleSort('name')} className="px-6 py-3 text-left text-xs font-medium text-opacity-70 text-cafe-ink uppercase tracking-wider cursor-pointer hover:bg-slate-100">
+                Name {getSortIcon('name')}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-opacity-70 text-cafe-ink uppercase tracking-wider">
+                Contact
+              </th>
+              <th onClick={() => handleSort('tier')} className="px-6 py-3 text-left text-xs font-medium text-opacity-70 text-cafe-ink uppercase tracking-wider cursor-pointer hover:bg-slate-100">
+                Tier {getSortIcon('tier')}
+              </th>
+              <th onClick={() => handleSort('currentPoints')} className="px-6 py-3 text-right text-xs font-medium text-opacity-70 text-cafe-ink uppercase tracking-wider cursor-pointer hover:bg-slate-100">
+                Balance {getSortIcon('currentPoints')}
+              </th>
+              <th onClick={() => handleSort('lifetimePoints')} className="px-6 py-3 text-right text-xs font-medium text-opacity-70 text-cafe-ink uppercase tracking-wider cursor-pointer hover:bg-slate-100">
+                Lifetime {getSortIcon('lifetimePoints')}
+              </th>
+              <th className="px-6 py-3 relative">
+                <span className="sr-only">View</span>
+              </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
+          <tbody className="bg-white divide-y divide-opacity-10 divide-cafe-ink">
             {members.map((member) => (
-              <tr key={member._id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{member.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{member.phone}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${member.tier === 'Gold' ? 'bg-yellow-100 text-yellow-800' : 
-                      member.tier === 'Silver' ? 'bg-slate-100 text-slate-800' : 
-                      'bg-orange-100 text-orange-800'}`}>
+              <tr key={member._id} className="hover:bg-cafe-base transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cafe-ink">{member.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm opacity-70">{member.phone}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    member.tier === 'Gold' ? 'bg-[#C9A34E] text-white' : 
+                    member.tier === 'Silver' ? 'bg-[#8E9AA6] text-white' : 
+                    'bg-[#A9744F] text-white'
+                  }`}>
                     {member.tier}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{member.currentPoints}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{member.lifetimePoints}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-bold font-serif">{member.currentPoints}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-serif opacity-70">{member.lifetimePoints}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button onClick={() => navigate(`/members/${member._id}`)} className="text-amber-600 hover:text-amber-900">View</button>
+                  <button onClick={() => navigate(`/members/${member._id}`)} className="text-cafe-caramel hover:underline">View</button>
                 </td>
               </tr>
             ))}
