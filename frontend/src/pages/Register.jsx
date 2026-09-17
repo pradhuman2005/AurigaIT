@@ -21,52 +21,52 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cafe-base flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Coffee className="h-12 w-12 text-amber-600 mx-auto" />
-        <h2 className="mt-6 text-3xl font-extrabold text-slate-900">Register Staff Account</h2>
+        <Coffee className="h-12 w-12 text-cafe-caramel mx-auto" />
+        <h2 className="mt-6 text-3xl font-extrabold font-serif text-cafe-ink">Register Staff Account</h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-cafe-surface py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-cafe-border">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && <div className="text-red-500 text-sm">{error}</div>}
             
             <div>
-              <label className="block text-sm font-medium text-slate-700">Full Name</label>
-              <div className="mt-1">
+              <label className="block text-sm font-medium opacity-80">Full Name</label>
+              <div className="mt-2">
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border border-cafe-border rounded-lg shadow-sm bg-transparent focus:outline-none focus:ring-1 focus:ring-cafe-caramel focus:border-cafe-caramel sm:text-sm transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Email address</label>
-              <div className="mt-1">
+              <label className="block text-sm font-medium opacity-80">Email address</label>
+              <div className="mt-2">
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border border-cafe-border rounded-lg shadow-sm bg-transparent focus:outline-none focus:ring-1 focus:ring-cafe-caramel focus:border-cafe-caramel sm:text-sm transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Password</label>
-              <div className="mt-1">
+              <label className="block text-sm font-medium opacity-80">Password</label>
+              <div className="mt-2">
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border border-cafe-border rounded-lg shadow-sm bg-transparent focus:outline-none focus:ring-1 focus:ring-cafe-caramel focus:border-cafe-caramel sm:text-sm transition-colors"
                 />
               </div>
             </div>
@@ -74,15 +74,15 @@ export default function Register() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                className="w-full btn-primary"
               >
                 Register
               </button>
             </div>
           </form>
           
-          <div className="mt-6 text-center text-sm text-slate-500">
-            <p>Already have an account? <Link to="/login" className="text-amber-600 hover:text-amber-500">Log in here</Link></p>
+          <div className="mt-6 text-center text-sm">
+            <p>Already have an account? <Link to="/login" className="text-cafe-caramel font-medium hover:underline">Log in here</Link></p>
           </div>
         </div>
       </div>

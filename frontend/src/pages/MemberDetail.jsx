@@ -1,35 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Coffee, Search, PlusCircle, ArrowLeft, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Coffee, PlusCircle, ArrowLeft, ArrowDownCircle, ArrowUpCircle, Check } from 'lucide-react';
 import api from '../services/api';
 
-// Simple custom hook for count up animation
 function useCountUp(end, duration = 1000) {
   const [count, setCount] = useState(0);
   const prevEndRef = useRef(end);
-
   useEffect(() => {
-    // If end is 0 initially, set to 0 immediately
     if (prevEndRef.current === undefined) {
       setCount(end);
       prevEndRef.current = end;
       return;
     }
-
     const start = count;
     const difference = end - start;
     if (difference === 0) return;
-
     let startTime = null;
-
     const animate = (currentTime) => {
       if (!startTime) startTime = currentTime;
       const progress = Math.min((currentTime - startTime) / duration, 1);
-      
-      // Easing out function
       const easeOut = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(start + difference * easeOut));
-
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
@@ -37,10 +28,8 @@ function useCountUp(end, duration = 1000) {
         prevEndRef.current = end;
       }
     };
-
     requestAnimationFrame(animate);
   }, [end, duration]);
-
   return count;
 }
 
@@ -55,7 +44,6 @@ export default function MemberDetail() {
   const [purchaseAmount, setPurchaseAmount] = useState('');
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
 
   const animatedPoints = useCountUp(member?.currentPoints || 0, 1200);
 
@@ -75,7 +63,6 @@ export default function MemberDetail() {
       setTransactions(transRes.data);
       setRewards(rewardsRes.data);
     } catch (error) {
-      console.error(error);
       setError('Failed to load member data');
     } finally {
       setLoading(false);
@@ -86,17 +73,10 @@ export default function MemberDetail() {
     e.preventDefault();
     try {
       setError('');
-      setSuccessMsg('');
-      const res = await api.post('/purchases', {
-        memberId: id,
-        amount: Number(purchaseAmount)
-      });
+      await api.post('/purchases', { memberId: id, amount: Number(purchaseAmount) });
       setPurchaseAmount('');
       setShowPurchaseForm(false);
-      setSuccessMsg(`Successfully recorded purchase. Earned ${res.data.data.purchase.pointsEarned} points.`);
       fetchData();
-      
-      setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to record purchase');
     }
@@ -105,15 +85,8 @@ export default function MemberDetail() {
   const handleRedeem = async (rewardId) => {
     try {
       setError('');
-      setSuccessMsg('');
-      const res = await api.post('/redemptions', {
-        memberId: id,
-        rewardId
-      });
-      setSuccessMsg('Reward redeemed successfully!');
+      await api.post('/redemptions', { memberId: id, rewardId });
       fetchData();
-      
-      setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to redeem reward');
     }
@@ -125,185 +98,219 @@ export default function MemberDetail() {
     return 1.0;
   };
 
-  const getTierColor = (tier) => {
-    if (tier === 'Gold') return 'bg-[#C9A34E] text-white';
-    if (tier === 'Silver') return 'bg-[#8E9AA6] text-white';
-    return 'bg-[#A9744F] text-white';
+  const getTierColors = (tier) => {
+    if (tier === 'Gold') return { bg: 'bg-[#C9A34E]', text: 'text-[#C9A34E]', tint: 'bg-[#F3E7CB]' };
+    if (tier === 'Silver') return { bg: 'bg-[#8E9AA6]', text: 'text-[#8E9AA6]', tint: 'bg-[#E8ECEF]' };
+    return { bg: 'bg-[#A9744F]', text: 'text-[#A9744F]', tint: 'bg-[#F3E6DF]' };
   };
 
-  const getTierTextClass = (tier) => {
-    if (tier === 'Gold') return 'text-[#C9A34E]';
-    if (tier === 'Silver') return 'text-[#8E9AA6]';
-    return 'text-[#A9744F]';
-  };
-
-  if (loading) return <div className="text-center p-8 text-cafe-ink opacity-70">Loading...</div>;
+  if (loading) return <div className="text-center p-8 opacity-70">Loading...</div>;
   if (!member) return <div className="text-center p-8 text-red-500">Member not found</div>;
 
   const estimatedPoints = purchaseAmount ? Math.floor((purchaseAmount / 10) * getMultiplier(member.tier)) : 0;
+  const tierColors = getTierColors(member.tier);
+
+  // Check which rewards have been redeemed historically
+  const redeemedRewardNames = new Set(
+    transactions.filter(t => t.type === 'REDEEM').map(t => {
+      // E.g. "Redeemed Coffee"
+      return t.description.replace('Redeemed ', '');
+    })
+  );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <button onClick={() => navigate(-1)} className="flex items-center text-sm font-medium opacity-70 hover:opacity-100 transition-opacity text-cafe-ink">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+    <div className="max-w-3xl mx-auto space-y-10 pb-16">
+      <button onClick={() => navigate(-1)} className="flex items-center text-sm font-medium opacity-70 hover:opacity-100 transition-opacity">
+        <ArrowLeft className="mr-2 h-4 w-4" /> Back to members
       </button>
 
       {error && <div className="bg-red-50 text-red-700 p-4 rounded-md border border-red-200">{error}</div>}
-      {successMsg && <div className="bg-green-50 text-green-700 p-4 rounded-md border border-green-200">{successMsg}</div>}
 
-      {/* Hero Ticket Stub */}
-      <div className="ticket-stub">
-        <div className={`ticket-tier-bar ${getTierColor(member.tier)}`}></div>
-        <div className="p-8 sm:p-12 text-center">
-          <div className="mb-4">
-            <span className={`inline-flex items-center justify-center h-12 w-12 rounded-full border-2 ${getTierTextClass(member.tier)} border-current bg-white shadow-sm font-bold tracking-wider uppercase text-xs transform -rotate-12`}>
-              {member.tier}
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-cafe-ink mb-2">{member.name}</h2>
-          <p className="text-cafe-ink opacity-60 mb-8">{member.phone} &bull; {member.email}</p>
-          
-          <div className="relative inline-block">
-            <div className="text-6xl sm:text-8xl font-serif font-bold text-cafe-ink mb-2 tabular-nums">
-              {animatedPoints}
+      {/* Hero Loyalty Card (Ticket Stub) */}
+      <div className="loyalty-card">
+        <div className={`loyalty-card-accent ${tierColors.bg}`}></div>
+        
+        <div className="p-8 sm:p-12">
+          {/* Header Row */}
+          <div className="flex justify-between items-start mb-10">
+            <div>
+              <h2 className="text-2xl font-bold font-serif">{member.name}</h2>
+              <p className="opacity-60 text-sm mt-1">{member.phone}</p>
             </div>
-            <div className="text-sm uppercase tracking-widest font-semibold opacity-50 mb-2">Current Balance</div>
+            {/* Tier Seal */}
+            <div className={`flex items-center px-3 py-1.5 rounded-full ${tierColors.tint}`}>
+              <div className={`h-2 w-2 rounded-full ${tierColors.bg} mr-2`}></div>
+              <span className={`text-xs font-bold uppercase tracking-wide ${tierColors.text}`}>
+                {member.tier} &middot; {getMultiplier(member.tier)}x
+              </span>
+            </div>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-dashed border-opacity-20 border-cafe-ink">
-            <div className="flex justify-center space-x-12">
-              <div>
-                <p className="text-sm opacity-60">Lifetime Points</p>
-                <p className="text-xl font-bold font-serif">{member.lifetimePoints}</p>
-              </div>
-              <div>
-                <p className="text-sm opacity-60">Multiplier</p>
-                <p className="text-xl font-bold font-serif">{getMultiplier(member.tier)}x</p>
-              </div>
+          {/* Main Balance */}
+          <div className="mb-10 text-center">
+            <div className="text-xs uppercase tracking-widest font-semibold opacity-50 mb-3">Available Balance</div>
+            <div className="flex items-baseline justify-center">
+              <span className="text-7xl sm:text-[80px] font-serif font-bold text-cafe-ink tabular-nums leading-none">
+                {animatedPoints}
+              </span>
+              <span className="ml-3 text-lg font-medium opacity-60">pts</span>
             </div>
+          </div>
+          
+          {/* 3 Stats Row */}
+          <div className="grid grid-cols-3 gap-4 pt-8 dashed-divider text-center">
+            <div>
+              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Lifetime</p>
+              <p className="font-bold">{member.lifetimePoints} pts</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Tier</p>
+              <p className="font-bold">{member.tier}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider opacity-50 mb-1">Member Since</p>
+              <p className="font-bold">{new Date(member.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Punch Strip Footer */}
+        <div className="bg-[#FAF6F0] p-6 border-t border-dashed border-cafe-border">
+          <p className="text-xs uppercase tracking-wider opacity-50 mb-4 text-center">Reward Collection</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            {rewards.map(reward => {
+              const isRedeemed = redeemedRewardNames.has(reward.name);
+              return (
+                <div key={reward._id} className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${
+                  isRedeemed 
+                  ? 'bg-cafe-caramel text-white shadow-sm' 
+                  : 'bg-transparent border border-dashed border-cafe-muted opacity-60 text-cafe-ink'
+                }`}>
+                  {isRedeemed ? <Check className="h-3 w-3 mr-1.5" /> : <div className="h-3 w-3 rounded-full border border-cafe-muted mr-1.5"></div>}
+                  {reward.name}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Record Purchase Action */}
-        <div className="bg-white rounded-lg shadow-sm border border-opacity-10 border-cafe-ink overflow-hidden">
-          <div className="p-6">
-            <h3 className="text-lg font-bold font-serif text-cafe-ink mb-4 flex items-center">
-              <PlusCircle className="h-5 w-5 mr-2 text-cafe-caramel" />
-              Record Purchase
-            </h3>
-            
-            {!showPurchaseForm ? (
-              <button
-                onClick={() => setShowPurchaseForm(true)}
-                className="w-full py-4 border-2 border-dashed border-opacity-20 border-cafe-ink rounded-lg text-cafe-ink opacity-70 hover:opacity-100 hover:border-cafe-caramel hover:text-cafe-caramel transition-colors font-medium"
-              >
-                + Add new purchase
-              </button>
-            ) : (
-              <form onSubmit={handlePurchase} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-cafe-ink opacity-70">Purchase Amount (₹)</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    className="mt-1 focus:ring-0 focus:outline-none block w-full border-b border-opacity-20 border-cafe-ink py-2 bg-transparent text-xl font-serif"
-                    placeholder="e.g. 450"
-                    value={purchaseAmount}
-                    onChange={(e) => setPurchaseAmount(e.target.value)}
-                  />
-                  {purchaseAmount && (
-                    <p className="mt-2 text-sm text-cafe-caramel font-medium">
-                      Estimated points: <strong>+{estimatedPoints}</strong>
-                    </p>
-                  )}
-                </div>
-                <div className="flex space-x-3 pt-2">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-cafe-ink text-white py-3 rounded text-sm font-medium hover:bg-opacity-90 transition-colors"
-                  >
-                    Confirm
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowPurchaseForm(false); setPurchaseAmount(''); }}
-                    className="flex-1 bg-slate-100 text-cafe-ink py-3 rounded text-sm font-medium hover:bg-slate-200 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+        <div>
+          <h3 className="text-lg font-bold font-serif mb-4 flex items-center">
+            <PlusCircle className="h-5 w-5 mr-2 text-cafe-caramel" />
+            Record Purchase
+          </h3>
+          
+          {!showPurchaseForm ? (
+            <button
+              onClick={() => setShowPurchaseForm(true)}
+              className="w-full py-6 border-2 border-dashed border-cafe-border rounded-xl text-cafe-ink opacity-70 hover:opacity-100 hover:border-cafe-caramel hover:text-cafe-caramel transition-colors font-medium bg-cafe-surface"
+            >
+              + Add new purchase
+            </button>
+          ) : (
+            <form onSubmit={handlePurchase} className="space-y-4 bg-cafe-surface p-6 rounded-xl border border-cafe-border">
+              <div>
+                <label className="block text-sm font-medium opacity-70">Purchase Amount (₹)</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  className="mt-2 focus:ring-0 focus:outline-none block w-full border-b border-cafe-border py-2 bg-transparent text-xl font-serif text-cafe-ink"
+                  placeholder="e.g. 450"
+                  value={purchaseAmount}
+                  onChange={(e) => setPurchaseAmount(e.target.value)}
+                />
+                {purchaseAmount && (
+                  <p className="mt-3 text-sm text-cafe-caramel font-medium">
+                    Estimated points: +{estimatedPoints}
+                  </p>
+                )}
+              </div>
+              <div className="flex space-x-3 pt-4">
+                <button type="submit" className="flex-1 btn-primary text-sm py-2">
+                  Confirm
+                </button>
+                <button type="button" onClick={() => { setShowPurchaseForm(false); setPurchaseAmount(''); }} className="flex-1 btn-ghost text-sm py-2">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         {/* Redeem Rewards */}
-        <div className="bg-white rounded-lg shadow-sm border border-opacity-10 border-cafe-ink overflow-hidden">
-          <div className="p-6">
-            <h3 className="text-lg font-bold font-serif text-cafe-ink mb-4 flex items-center">
-              <Coffee className="h-5 w-5 mr-2 text-cafe-caramel" />
-              Redeem Rewards
-            </h3>
-            <div className="space-y-3">
-              {rewards.map(reward => {
-                const affordable = member.currentPoints >= reward.pointsCost;
-                return (
-                  <div key={reward._id} className={`border rounded p-4 flex justify-between items-center ${affordable ? 'border-cafe-caramel bg-cafe-base' : 'border-opacity-10 border-cafe-ink bg-slate-50 opacity-60'}`}>
-                    <div className="flex items-center">
-                      <div className="mr-3 text-cafe-caramel">
-                        {reward.name.toLowerCase().includes('coffee') ? <Coffee className="h-6 w-6" /> : <div className="h-6 w-6 rounded-full bg-cafe-caramel bg-opacity-20 flex items-center justify-center font-bold text-xs">☕</div>}
-                      </div>
-                      <div>
-                        <p className="font-medium text-cafe-ink">{reward.name}</p>
-                        <p className="text-sm font-serif font-bold text-cafe-caramel">{reward.pointsCost} pts</p>
-                      </div>
+        <div>
+          <h3 className="text-lg font-bold font-serif mb-4 flex items-center">
+            <Coffee className="h-5 w-5 mr-2 text-cafe-caramel" />
+            Redeem Rewards
+          </h3>
+          <div className="space-y-3">
+            {rewards.map(reward => {
+              const affordable = member.currentPoints >= reward.pointsCost;
+              return (
+                <div key={reward._id} className="reward-card-flat">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded bg-[#F3E6DF] flex items-center justify-center mr-4 text-cafe-caramel">
+                      {reward.name.toLowerCase().includes('coffee') ? <Coffee className="h-5 w-5" /> : <div className="text-sm font-serif font-bold text-cafe-caramel">R</div>}
                     </div>
-                    <button
-                      disabled={!affordable}
-                      onClick={() => handleRedeem(reward._id)}
-                      className={`px-4 py-2 rounded text-sm font-medium ${affordable ? 'bg-cafe-caramel text-white hover:bg-opacity-90 transition-colors' : 'bg-slate-200 text-slate-500 cursor-not-allowed'}`}
-                    >
-                      Redeem
-                    </button>
+                    <div>
+                      <p className="font-medium">{reward.name}</p>
+                      <p className="text-sm font-bold text-cafe-caramel mt-0.5">{reward.pointsCost} pts</p>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+                  <button
+                    disabled={!affordable}
+                    onClick={() => handleRedeem(reward._id)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
+                      affordable 
+                      ? 'border border-cafe-caramel text-cafe-caramel hover:bg-cafe-caramel hover:text-white' 
+                      : 'border border-cafe-border text-cafe-muted opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    Redeem
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Ledger */}
-      <div className="bg-white rounded-lg shadow-sm border border-opacity-10 border-cafe-ink overflow-hidden">
-        <div className="px-6 py-4 border-b border-opacity-10 border-cafe-ink">
-          <h3 className="text-lg font-bold font-serif text-cafe-ink">Transaction History</h3>
-        </div>
-        <ul className="divide-y divide-opacity-10 divide-cafe-ink">
-          {transactions.map(t => (
-            <li key={t._id} className="px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center">
-                {t.type === 'EARN' ? (
-                  <ArrowUpCircle className="h-8 w-8 text-green-500 mr-4 opacity-80" />
-                ) : (
-                  <ArrowDownCircle className="h-8 w-8 text-cafe-caramel mr-4 opacity-80" />
-                )}
-                <div>
-                  <p className="font-medium text-cafe-ink">{t.description}</p>
-                  <p className="text-sm opacity-60">{new Date(t.createdAt).toLocaleString()}</p>
+      <div className="pt-8">
+        <h3 className="text-lg font-bold font-serif mb-6">Transaction Ledger</h3>
+        <div className="bg-cafe-surface rounded-xl border border-cafe-border overflow-hidden">
+          <ul className="divide-y divide-cafe-border">
+            {transactions.map(t => (
+              <li key={t._id} className="px-6 py-5 flex items-center justify-between">
+                <div className="flex items-center">
+                  {t.type === 'EARN' ? (
+                    <div className="h-8 w-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mr-4">
+                      <ArrowUpCircle className="h-5 w-5 text-green-600" />
+                    </div>
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-[#F3E6DF] border border-[#E8DFD2] flex items-center justify-center mr-4">
+                      <ArrowDownCircle className="h-5 w-5 text-cafe-caramel" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-cafe-ink">{t.description}</p>
+                    <p className="text-xs opacity-60 mt-1">{new Date(t.createdAt).toLocaleString()}</p>
+                  </div>
                 </div>
-              </div>
-              <div className={`text-xl font-bold font-serif ${t.type === 'EARN' ? 'text-green-600' : 'text-cafe-caramel'}`}>
-                {t.type === 'EARN' ? '+' : ''}{t.points}
-              </div>
-            </li>
-          ))}
-          {transactions.length === 0 && (
-            <li className="px-6 py-8 text-center opacity-60 italic">No transactions yet.</li>
-          )}
-        </ul>
+                <div className={`text-xl font-bold font-serif ${t.type === 'EARN' ? 'text-green-600' : 'text-cafe-caramel'}`}>
+                  {t.type === 'EARN' ? '+' : ''}{t.points}
+                </div>
+              </li>
+            ))}
+            {transactions.length === 0 && (
+              <li className="px-6 py-8 text-center opacity-60 italic text-sm">No transactions yet.</li>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );
